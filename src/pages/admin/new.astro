@@ -1,0 +1,40 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductForm from '../../components/admin/ProductForm.astro';
+import { getEnv } from '../../lib/env';
+import { IMAGE_ERROR_MESSAGES } from '../../lib/supabase-admin';
+
+const dbConnected = Boolean(
+  getEnv(Astro.locals, 'PUBLIC_SUPABASE_URL') && getEnv(Astro.locals, 'SUPABASE_SERVICE_ROLE_KEY')
+);
+
+const error = Astro.url.searchParams.get('error');
+const errorMessage = error ? IMAGE_ERROR_MESSAGES[error] : undefined;
+---
+
+<BaseLayout title="ადმინი — ახალი პროდუქტი" description="პროდუქტის დამატება." index={false}>
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div>
+        <span class="kicker">ადმინი</span>
+        <h1 style="margin:0;">ახალი პროდუქტი</h1>
+      </div>
+      <a class="link-muted" href="/admin">← სიაში დაბრუნება</a>
+    </div>
+
+    {
+      dbConnected ? (
+        <div class="panel">
+          {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+          <ProductForm action="/api/products" />
+        </div>
+      ) : (
+        <div class="notice notice-warn">
+          მონაცემთა ბაზა არ არის დაკავშირებული — პროდუქტის დამატება მიუწვდომელია.
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

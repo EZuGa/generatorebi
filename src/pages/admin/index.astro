@@ -1,0 +1,82 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProducts } from '../../lib/products';
+import { categoryName } from '../../lib/categories';
+import { getEnv } from '../../lib/env';
+
+const products = await getProducts();
+const dbConnected = Boolean(
+  getEnv(Astro.locals, 'PUBLIC_SUPABASE_URL') && getEnv(Astro.locals, 'SUPABASE_SERVICE_ROLE_KEY')
+);
+const saved = Astro.url.searchParams.get('saved');
+---
+
+<BaseLayout title="ადმინი — პროდუქტები" description="პროდუქტების მართვა." index={false}>
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div>
+        <span class="kicker">ადმინი</span>
+        <h1 style="margin:0;">პროდუქტები</h1>
+      </div>
+      <div class="admin-actions">
+        {dbConnected && <a href="/admin/new" class="btn btn-primary btn-small">+ ახალი პროდუქტი</a>}
+        <form method="POST" action="/api/auth/logout">
+          <button type="submit" class="btn btn-dark btn-small">გამოსვლა</button>
+        </form>
+      </div>
+    </div>
+
+    {!dbConnected && (
+      <div class="notice notice-warn">
+        მონაცემთა ბაზა არ არის დაკავშირებული — პროდუქტების დამატება/რედაქტირება/წაშლა
+        მიუწვდომელია. ქვემოთ ნაჩვენებია სადემონტსრაციო მონაცემები.
+        დასაკავშირებლად დააყენეთ <code>PUBLIC_SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>
+        და <code>SUPABASE_SERVICE_ROLE_KEY</code>.
+      </div>
+    )}
+    {saved === '1' && <div class="notice notice-ok">ცვლილება შენახულია. საიტი რამდენიმე წუთში განახლდება.</div>}
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>დასახელება</th>
+          <th>კატეგორია</th>
+          <th>სლაგი</th>
+          <th>რჩეული</th>
+          <th>მოქმედება</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          products.map((p) => (
+            <tr>
+              <td><strong>{p.name}</strong></td>
+              <td>{categoryName(p.category)}</td>
+              <td><code>{p.slug}</code></td>
+              <td>{p.featured ? '✓' : '—'}</td>
+              <td>
+                {dbConnected ? (
+                  <div class="admin-actions">
+                    <a href={`/admin/edit/${p.id}`} class="btn btn-dark btn-small">რედაქტირება</a>
+                    <form
+                      method="POST"
+                      action={`/api/products/${p.id}`}
+                      onsubmit="return confirm('ნამდვილად გსურთ პროდუქტის წაშლა?');"
+                    >
+                      <input type="hidden" name="_method" value="delete" />
+                      <button type="submit" class="btn btn-danger btn-small">წაშლა</button>
+                    </form>
+                  </div>
+                ) : (
+                  <span class="link-muted">—</span>
+                )}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</BaseLayout>

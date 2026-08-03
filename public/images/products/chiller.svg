@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="ჩილერი">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e242c"/>
+      <stop offset="1" stop-color="#15181d"/>
+    </linearGradient>
+    <linearGradient id="cab" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a434f"/>
+      <stop offset="1" stop-color="#232a33"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g opacity="0.06" stroke="#ffffff" stroke-width="2">
+    <path d="M-100 600 L700 -200 M0 700 L800 -100 M-200 500 L600 -300"/>
+  </g>
+  <!-- chiller cabinet -->
+  <rect x="170" y="140" width="460" height="330" rx="16" fill="url(#cab)" stroke="#4a5560" stroke-width="3"/>
+  <!-- fan circles -->
+  <g stroke="#15181d" stroke-width="6" fill="#10141a">
+    <circle cx="295" cy="250" r="62"/>
+    <circle cx="505" cy="250" r="62"/>
+  </g>
+  <g stroke="#5b6572" stroke-width="5" fill="none">
+    <circle cx="295" cy="250" r="40"/>
+    <circle cx="505" cy="250" r="40"/>
+    <path d="M295 210 v80 M255 250 h80 M505 210 v80 M465 250 h80"/>
+  </g>
+  <!-- lower grille -->
+  <g stroke="#15181d" stroke-width="7">
+    <line x1="210" y1="360" x2="590" y2="360"/>
+    <line x1="210" y1="385" x2="590" y2="385"/>
+    <line x1="210" y1="410" x2="590" y2="410"/>
+    <line x1="210" y1="435" x2="590" y2="435"/>
+  </g>
+  <!-- feet -->
+  <rect x="210" y="470" width="40" height="22" rx="5" fill="#0c0f13"/>
+  <rect x="550" y="470" width="40" height="22" rx="5" fill="#0c0f13"/>
+  <!-- snowflake badge -->
+  <g stroke="#f59e0b" stroke-width="7" stroke-linecap="round">
+    <line x1="400" y1="70" x2="400" y2="120"/>
+    <line x1="378" y1="82" x2="422" y2="108"/>
+    <line x1="422" y1="82" x2="378" y2="108"/>
+  </g>
+  <text x="400" y="555" text-anchor="middle" font-family="sans-serif" font-size="40" font-weight="700" fill="#e8ecf1">ჩილერი</text>
+</svg>

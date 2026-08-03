@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { CATEGORIES, type Category } from '../../lib/categories';
+import { getProductsByCategory, type Product } from '../../lib/products';
+
+export async function getStaticPaths() {
+  const paths: { params: { category: string }; props: { category: Category; products: Product[] } }[] = [];
+  for (const category of CATEGORIES) {
+    const products = await getProductsByCategory(category.key);
+    paths.push({ params: { category: category.slug }, props: { category, products } });
+  }
+  return paths;
+}
+
+const { category, products } = Astro.props;
+---
+
+<BaseLayout
+  title={`${category.name} — კატალოგი`}
+  description={`${category.name}: ${category.desc} ნახეთ სრული არჩევანი GENERATORI.GE-ზე — ფასი მოთხოვნით, მიწოდება მთელ საქართველოში.`}
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">კატალოგი</span>
+      <h1>{category.name}</h1>
+      <p>{category.desc}</p>
+    </div>
+  </section>
+
+  <nav class="breadcrumbs container" aria-label="ბრედკრამბი">
+    <ol>
+      <li><a href="/">მთავარი</a></li>
+      <li><a href="/catalog">კატალოგი</a></li>
+      <li><span aria-current="page">{category.name}</span></li>
+    </ol>
+  </nav>
+
+  <section class="section" style="padding-top: 32px;">
+    <div class="container">
+      {
+        products.length > 0 ? (
+          <div class="product-grid">
+            {products.map((product) => (
+              <ProductCard product={product} />
+            ))}
+          </div>
+        ) : (
+          <p>ამ კატეგორიაში პროდუქტები მალე დაემატება.</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

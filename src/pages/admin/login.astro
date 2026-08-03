@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEnv } from '../../lib/env';
+import { SESSION_COOKIE, verifySessionToken } from '../../lib/auth';
+
+const secret = getEnv(Astro.locals, 'AUTH_SECRET');
+const passwordConfigured = Boolean(getEnv(Astro.locals, 'ADMIN_PASSWORD') && secret);
+
+// Already logged in? Go straight to the dashboard.
+const token = Astro.cookies.get(SESSION_COOKIE)?.value;
+if (secret && token && (await verifySessionToken(token, secret))) {
+  return Astro.redirect('/admin');
+}
+
+const error = Astro.url.searchParams.get('error');
+---
+
+<BaseLayout title="ადმინის შესვლა" description="ადმინისტრატორის ზონაში შესვლა." index={false}>
+  <div class="admin-narrow">
+    <div class="panel">
+      <span class="kicker">ადმინი</span>
+      <h1>შესვლა</h1>
+
+      {!passwordConfigured && (
+        <div class="notice notice-warn">
+          ადმინისტრატორის პაროლი კონფიგურირებული არ არის. დააყენეთ გარემოს ცვლადები
+          <code>ADMIN_PASSWORD</code> და <code>AUTH_SECRET</code> სერვერზე.
+        </div>
+      )}
+      {error === '1' && (
+        <div class="notice notice-error">პაროლი არასწორია. სცადეთ ხელახლა.</div>
+      )}
+
+      <form method="POST" action="/api/auth/login">
+        <div class="form-field">
+          <label for="password">პაროლი</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">შესვლა</button>
+      </form>
+    </div>
+    <p style="text-align:center;"><a class="link-muted" href="/">← საიტზე დაბრუნება</a></p>
+  </div>
+</BaseLayout>

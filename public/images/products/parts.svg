@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="სათადარიგო ნაწილები">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e242c"/>
+      <stop offset="1" stop-color="#15181d"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#49525e"/>
+      <stop offset="1" stop-color="#2a323c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g opacity="0.06" stroke="#ffffff" stroke-width="2">
+    <path d="M-100 600 L700 -200 M0 700 L800 -100 M-200 500 L600 -300"/>
+  </g>
+  <!-- gear -->
+  <g transform="translate(400 290)">
+    <g fill="url(#metal)" stroke="#4a5560" stroke-width="3">
+      <circle r="120"/>
+      <g>
+        <rect x="-22" y="-165" width="44" height="60" rx="8"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(45)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(90)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(135)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(180)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(225)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(270)"/>
+        <rect x="-22" y="-165" width="44" height="60" rx="8" transform="rotate(315)"/>
+      </g>
+    </g>
+    <circle r="55" fill="#15181d" stroke="#4a5560" stroke-width="3"/>
+    <circle r="24" fill="#f59e0b"/>
+  </g>
+  <!-- filter canister -->
+  <g>
+    <rect x="590" y="330" width="90" height="140" rx="14" fill="url(#metal)" stroke="#4a5560" stroke-width="3"/>
+    <rect x="590" y="360" width="90" height="26" fill="#f59e0b"/>
+  </g>
+  <text x="400" y="555" text-anchor="middle" font-family="sans-serif" font-size="40" font-weight="700" fill="#e8ecf1">სათადარიგო ნაწილები</text>
+</svg>

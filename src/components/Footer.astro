@@ -1,0 +1,44 @@
+---
+import { CATEGORIES } from '../lib/categories';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <h3>GENERATORI.GE</h3>
+        <p>
+          დიზელ-გენერატორების, სამრეწველო ჩილერებისა და სათადარიგო ნაწილების
+          მიწოდება საქართველოს მასშტაბით. გარანტია, მონტაჟი და სერვისი.
+        </p>
+      </div>
+
+      <nav aria-label="ქვედა ნავიგაცია">
+        <h3>ნავიგაცია</h3>
+        <ul>
+          <li><a href="/">მთავარი</a></li>
+          <li><a href="/catalog">კატალოგი</a></li>
+          {CATEGORIES.map((c) => <li><a href={`/catalog/${c.slug}`}>{c.name}</a></li>)}
+          <li><a href="/contact">კონტაქტი</a></li>
+        </ul>
+      </nav>
+
+      <div>
+        <h3>კონტაქტი</h3>
+        <ul>
+          <li><a href="tel:+995555000000">+995 555 00 00 00</a></li>
+          <li><a href="mailto:info@generatori.ge">info@generatori.ge</a></li>
+          <li>თბილისი, საქართველო</li>
+          <li>ორშ–შაბ: 09:00–18:00</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {year} GENERATORI.GE — ყველა უფლება დაცულია</span>
+      <span>დიზელ-გენერატორები · ჩილერები · სათადარიგო ნაწილები</span>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,41 @@
+---
+import type { Product } from '../lib/products';
+import { categoryName } from '../lib/categories';
+
+interface Props {
+  product: Product;
+  /** First-row images should load eagerly; pass true to lazy-load. */
+  lazy?: boolean;
+}
+
+const { product, lazy = true } = Astro.props;
+const chips = product.specs.slice(0, 2);
+---
+
+<a href={`/products/${product.slug}`} class="product-card">
+  <div class="product-card-img">
+    <img
+      src={product.image}
+      alt={product.name}
+      width="800"
+      height="600"
+      loading={lazy ? 'lazy' : 'eager'}
+      decoding="async"
+    />
+    <span class="badge">{categoryName(product.category)}</span>
+  </div>
+  <div class="product-card-body">
+    <h3>{product.name}</h3>
+    {
+      chips.length > 0 && (
+        <div class="spec-chips">
+          {chips.map((s) => (
+            <span class="spec-chip">{s.value}</span>
+          ))}
+        </div>
+      )
+    }
+    <span class="price-line">ფასი მოთხოვნით</span>
+    <span class="card-link">დეტალურად →</span>
+  </div>
+</a>

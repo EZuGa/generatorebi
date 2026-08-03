@@ -1,0 +1,87 @@
+---
+import { CATEGORIES } from '../../lib/categories';
+import { specsToText } from '../../lib/supabase-admin';
+import type { Product } from '../../lib/products';
+
+interface Props {
+  action: string;
+  product?: Product;
+}
+
+const { action, product } = Astro.props;
+const specsText = product ? specsToText(product.specs) : '';
+---
+
+<form method="POST" action={action} enctype="multipart/form-data">
+  <div class="form-field">
+    <label for="name">დასახელება (ქართულად)</label>
+    <input type="text" id="name" name="name" required value={product?.name ?? ''} />
+  </div>
+
+  <div class="form-field">
+    <label for="slug">სლაგი (ლათინურად, URL-ისთვის)</label>
+    <input type="text" id="slug" name="slug" required pattern="[a-z0-9\-]+" value={product?.slug ?? ''} />
+    <p class="form-hint">მხოლოდ პატარა ლათინური ასოები, ციფრები და ტირე — მაგ. dizel-generatori-100-kva</p>
+  </div>
+
+  <div class="form-field">
+    <label for="category">კატეგორია</label>
+    <select id="category" name="category">
+      {
+        CATEGORIES.map((c) => (
+          <option value={c.key} selected={product?.category === c.key}>{c.name}</option>
+        ))
+      }
+    </select>
+  </div>
+
+  <div class="form-field">
+    <label for="short_desc">მოკლე აღწერა</label>
+    <input type="text" id="short_desc" name="short_desc" required value={product?.short_desc ?? ''} />
+  </div>
+
+  <div class="form-field">
+    <label for="description">სრული აღწერა</label>
+    <textarea id="description" name="description">{product?.description ?? ''}</textarea>
+    <p class="form-hint">აბზაცების გამოსაყოფად გამოიყენეთ ცარიელი ხაზი.</p>
+  </div>
+
+  <div class="form-field">
+    <label for="image">სურათის მისამართი</label>
+    <input type="text" id="image" name="image" value={product?.image ?? '/images/products/generator.svg'} />
+    <p class="form-hint">მაგ. /images/products/generator.svg — ატვირთული ფაილი უნდა იდოს public/images/products/-ში.</p>
+  </div>
+
+  <div class="form-field">
+    <label for="image_file">ან ატვირთეთ სურათი</label>
+    {product?.image && (
+      <img
+        src={product.image}
+        alt={`მიმდინარე სურათი — ${product.name}`}
+        width="160"
+        height="120"
+        style="width:160px; height:120px; object-fit:cover; border-radius:6px; border:1px solid var(--color-line); margin-bottom:8px;"
+      />
+    )}
+    <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/avif" />
+    <p class="form-hint">
+      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში
+      და უპირატესია ზედა ტექსტურ ველზე.
+    </p>
+  </div>
+
+  <div class="form-field">
+    <label for="specs">მახასიათებლები</label>
+    <textarea id="specs" name="specs">{specsText}</textarea>
+    <p class="form-hint">თითო ხაზზე: ეტიკეტი | მნიშვნელობა — მაგ. სიმძლავრე | 100 kVA</p>
+  </div>
+
+  <div class="form-field">
+    <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
+      <input type="checkbox" name="featured" style="width:auto;" checked={product?.featured ?? false} />
+      გამორჩეული (გამოჩნდება მთავარ გვერდზე)
+    </label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">შენახვა</button>
+</form>

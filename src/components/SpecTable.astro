@@ -1,0 +1,22 @@
+---
+import type { Spec } from '../lib/products';
+
+interface Props {
+  specs: Spec[];
+}
+
+const { specs } = Astro.props;
+---
+
+<table class="spec-table">
+  <tbody>
+    {
+      specs.map((spec) => (
+        <tr>
+          <th scope="row">{spec.label}</th>
+          <td>{spec.value}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

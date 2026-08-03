@@ -1,0 +1,49 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ProductForm from '../../../components/admin/ProductForm.astro';
+import { getProducts } from '../../../lib/products';
+import { getEnv } from '../../../lib/env';
+import { IMAGE_ERROR_MESSAGES } from '../../../lib/supabase-admin';
+
+const dbConnected = Boolean(
+  getEnv(Astro.locals, 'PUBLIC_SUPABASE_URL') && getEnv(Astro.locals, 'SUPABASE_SERVICE_ROLE_KEY')
+);
+
+const error = Astro.url.searchParams.get('error');
+const errorMessage = error ? IMAGE_ERROR_MESSAGES[error] : undefined;
+
+const { id } = Astro.params;
+const products = await getProducts();
+const product = products.find((p) => p.id === id);
+
+if (!product) {
+  return Astro.redirect('/admin');
+}
+---
+
+<BaseLayout title={`ადმინი — ${product.name}`} description="პროდუქტის რედაქტირება." index={false}>
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div>
+        <span class="kicker">ადმინი</span>
+        <h1 style="margin:0;">რედაქტირება: {product.name}</h1>
+      </div>
+      <a class="link-muted" href="/admin">← სიაში დაბრუნება</a>
+    </div>
+
+    {
+      dbConnected ? (
+        <div class="panel">
+          {errorMessage && <div class="notice notice-error">{errorMessage}</div>}
+          <ProductForm action={`/api/products/${product.id}`} product={product} />
+        </div>
+      ) : (
+        <div class="notice notice-warn">
+          მონაცემთა ბაზა არ არის დაკავშირებული — რედაქტირება მიუწვდომელია.
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>
