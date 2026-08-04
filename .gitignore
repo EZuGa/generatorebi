@@ -9,8 +9,10 @@ node_modules/
 .astro/
 
 # environment variables
+# NOTE: .env.production is intentionally committed — it holds only non-secret
+# build-time values (public Supabase URL + anon key, site URL). Secrets stay in
+# .env locally and in the Cloudflare dashboard.
 .env
-.env.production
 .env.development
 
 # wrangler / cloudflare
