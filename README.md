@@ -104,7 +104,21 @@ create policy "public read published"
 ```
 
 `content` is plain text: blank lines separate paragraphs and lines starting
-with `## ` render as `<h2>` subheadings on the article page.
+with `## ` render as `<h2>` subheadings on the article page. Paragraphs also
+support one inline-link convention — `[anchor text](/products/some-slug)` —
+which renders as an `<a>` tag (text is HTML-escaped first; root-relative paths
+and http(s) URLs only, no other markdown). Use it for internal links to
+product/category pages, e.g. `[100 kVA-იანი დიზელ-გენერატორი](/products/dizel-generatori-100-kva)`.
+
+To populate the live table with all sample articles in one go, run
+`supabase/seed-posts.sql` in the Supabase SQL Editor (after creating the
+table). It inserts every post from `src/data/posts.json` and is safe to
+re-run (`on conflict (slug) do nothing`).
+
+> **Slug caveat:** the sample articles link to the sample product slugs from
+> `src/data/products.json` (e.g. `dizel-generatori-100-kva`). If your live
+> `products` table uses different slugs, update the links in the posts
+> accordingly (admin → სტატიები → რედაქტირება), otherwise those links will 404.
 
 ## Supabase Storage setup
 

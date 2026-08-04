@@ -45,7 +45,9 @@ export async function getPosts(): Promise<Post[]> {
     }
   }
 
-  const published = posts.filter((p) => p.published);
+  const published = posts
+    .filter((p) => p.published)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
   if (!import.meta.env.DEV) cache = published;
   return published;
 }
@@ -76,6 +78,26 @@ export function contentParagraphs(content: string): string[] {
     .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Renders one content block to safe HTML: escapes everything first, then
+ * converts markdown-style inline links [anchor](/path-or-url) to <a> tags.
+ * Only root-relative paths and http(s) URLs are accepted — no other markdown.
+ */
+export function renderInline(text: string): string {
+  return escapeHtml(text).replace(
+    /\[([^\]]+)]\((\/[^\s)]+|https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2">$1</a>'
+  );
 }
 
 /** Georgian long-form date, e.g. «8 ოქტომბერი, 2024». */

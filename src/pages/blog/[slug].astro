@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPosts, contentParagraphs, formatDate, type Post } from '../../lib/posts';
+import { getPosts, contentParagraphs, renderInline, formatDate, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -85,7 +85,11 @@ const jsonLd = [
 
       {
         blocks.map((block) =>
-          block.startsWith('## ') ? <h2>{block.slice(3)}</h2> : <p>{block}</p>
+          block.startsWith('## ') ? (
+            <h2>{block.slice(3)}</h2>
+          ) : (
+            <p set:html={renderInline(block)} />
+          )
         )
       }
     </div>
