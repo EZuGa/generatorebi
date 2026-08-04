@@ -10,7 +10,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
   const isAdminPage = pathname.startsWith('/admin') && !pathname.startsWith('/admin/login');
-  const isMutationApi = pathname.startsWith('/api/products');
+  const isMutationApi = pathname.startsWith('/api/products') || pathname.startsWith('/api/posts');
 
   if (!isAdminPage && !isMutationApi) return next();
 

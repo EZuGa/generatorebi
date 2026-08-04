@@ -79,6 +79,33 @@ Note: the admin "new product" form lets the database generate the `id`
 (`gen_random_uuid()`), while sample data uses string ids — both work since all
 lookups are by `slug` (public) or `id` (admin).
 
+The blog/articles section uses a second table:
+
+```sql
+create table posts (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  title text not null,
+  excerpt text not null default '',
+  content text not null default '',
+  image text not null default '',
+  published boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table posts enable row level security;
+
+-- Only published posts are publicly readable; drafts are admin-only:
+create policy "public read published"
+  on posts for select
+  using (published = true);
+
+-- Writes go through the service role key, which bypasses RLS.
+```
+
+`content` is plain text: blank lines separate paragraphs and lines starting
+with `## ` render as `<h2>` subheadings on the article page.
+
 ## Supabase Storage setup
 
 Product images can be uploaded straight from the browser in the admin form —
@@ -106,19 +133,25 @@ with a Georgian error message on the form.
 1. Visit `/admin/login`, enter `ADMIN_PASSWORD`. On success the server sets an
    HMAC-signed `admin_session` httpOnly cookie (Web Crypto `crypto.subtle`,
    Workers-compatible) and redirects to `/admin`.
-2. `src/middleware.ts` guards `/admin/*` (except `/admin/login`) and `/api/products*`
-   by verifying the cookie against `AUTH_SECRET`.
+2. `src/middleware.ts` guards `/admin/*` (except `/admin/login`) and the mutation
+   APIs (`/api/products*`, `/api/posts*`) by verifying the cookie against
+   `AUTH_SECRET`.
 3. `/admin` lists products with edit/delete; `/admin/new` and `/admin/edit/[id]`
    render the product form. Specs are edited as `label | value` lines. The form
    also has a file input («ან ატვირთეთ სურათი») — choosing a file uploads it to
    the `product-images` Storage bucket and takes precedence over the manual
    image path/URL field, which remains as a fallback.
-4. Mutations POST to `/api/products` / `/api/products/[id]` as
-   `multipart/form-data`. The API uploads any attached image to Supabase
-   Storage via plain `fetch()` (service role key, `x-upsert: true`), writes the
-   product row via PostgREST, then fire-and-forget POSTs to `DEPLOY_HOOK_URL`
-   so Cloudflare Pages rebuilds and the static catalog regenerates (usually
-   live within a couple of minutes).
+4. `/admin/posts` does the same for blog articles (`/admin/posts/new`,
+   `/admin/posts/edit/[id]`): title, latin slug, excerpt, content (blank line =
+   paragraph, `## ` = subheading), optional cover image upload into the same
+   `product-images` bucket, and a published checkbox — drafts stay invisible on
+   the public site thanks to the RLS policy above.
+5. Mutations POST to `/api/products`, `/api/products/[id]`, `/api/posts` or
+   `/api/posts/[id]` as `multipart/form-data`. The API uploads any attached
+   image to Supabase Storage via plain `fetch()` (service role key,
+   `x-upsert: true`), writes the row via PostgREST, then fire-and-forget POSTs
+   to `DEPLOY_HOOK_URL` so Cloudflare Pages rebuilds and the static pages
+   regenerate (usually live within a couple of minutes).
 
 ## Deploying to Cloudflare Pages
 
@@ -146,23 +179,27 @@ public/
   images/products/           # SVG placeholders (generator / chiller / parts)
 src/
   data/products.json         # sample catalog (fallback when Supabase is unset)
+  data/posts.json            # sample blog articles (fallback when Supabase is unset)
   lib/
-    products.ts              # data layer: Supabase REST → fallback JSON, memoized
+    products.ts              # product data layer: Supabase REST → fallback JSON, memoized
+    posts.ts                 # post data layer (same pattern; skips cache in dev)
     categories.ts            # category key ↔ slug ↔ Georgian name mapping
     auth.ts                  # HMAC session cookie helpers (Web Crypto)
     env.ts                   # runtime-or-build env var resolver
-    supabase-admin.ts        # service-role CRUD + deploy hook + form parsing
-  middleware.ts              # protects /admin/* and /api/products*
+    supabase-admin.ts        # service-role CRUD + storage upload + deploy hook + form parsing
+  middleware.ts              # protects /admin/*, /api/products* and /api/posts*
   layouts/BaseLayout.astro   # html head/meta/OG/fonts + header/footer
-  components/                # Header, Footer, ProductCard, SpecTable, admin/ProductForm
+  components/                # Header, Footer, ProductCard, SpecTable, admin/ProductForm, admin/PostForm
   pages/
-    index.astro              # home (hero, categories, featured, USP, CTA)
+    index.astro              # home (hero, categories, featured, USP, latest articles, CTA)
     catalog/index.astro      # full catalog grouped by category
     catalog/[category].astro # one static page per category
     products/[slug].astro    # product detail + JSON-LD Product/Breadcrumb
+    blog/index.astro         # article listing
+    blog/[slug].astro        # article page + JSON-LD Article/Breadcrumb
     contact.astro, 404.astro
-    admin/                   # login, dashboard, new, edit/[id] (server-rendered)
-    api/                     # auth/login, auth/logout, products CRUD (server-rendered)
+    admin/                   # login, dashboard, product + post forms (server-rendered)
+    api/                     # auth/login, auth/logout, products + posts CRUD (server-rendered)
 ```
 
 ## Notes & caveats

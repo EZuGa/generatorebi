@@ -21,6 +21,7 @@ const year = new Date().getFullYear();
           <li><a href="/">მთავარი</a></li>
           <li><a href="/catalog">კატალოგი</a></li>
           {CATEGORIES.map((c) => <li><a href={`/catalog/${c.slug}`}>{c.name}</a></li>)}
+          <li><a href="/blog">სტატიები</a></li>
           <li><a href="/contact">კონტაქტი</a></li>
         </ul>
       </nav>

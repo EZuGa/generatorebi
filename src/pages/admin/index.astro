@@ -21,6 +21,7 @@ const saved = Astro.url.searchParams.get('saved');
         <h1 style="margin:0;">პროდუქტები</h1>
       </div>
       <div class="admin-actions">
+        <a href="/admin/posts" class="btn btn-dark btn-small">სტატიები</a>
         {dbConnected && <a href="/admin/new" class="btn btn-primary btn-small">+ ახალი პროდუქტი</a>}
         <form method="POST" action="/api/auth/logout">
           <button type="submit" class="btn btn-dark btn-small">გამოსვლა</button>

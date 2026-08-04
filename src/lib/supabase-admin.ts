@@ -177,3 +177,64 @@ export function formToPayload(form: FormData): ProductPayload {
     featured: form.get('featured') === 'on',
   };
 }
+
+/* ---------- blog post CRUD (admin) ---------- */
+
+export interface PostPayload {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  published: boolean;
+}
+
+export async function createPost(
+  url: string,
+  serviceKey: string,
+  payload: PostPayload
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(`${url}/rest/v1/posts`, {
+    method: 'POST',
+    headers: adminHeaders(serviceKey),
+    body: JSON.stringify({ ...payload, created_at: new Date().toISOString() }),
+  });
+  return res.ok ? { ok: true } : { ok: false, error: `${res.status}: ${await res.text()}` };
+}
+
+export async function updatePost(
+  url: string,
+  serviceKey: string,
+  id: string,
+  payload: PostPayload
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(`${url}/rest/v1/posts?id=eq.${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: adminHeaders(serviceKey),
+    body: JSON.stringify(payload),
+  });
+  return res.ok ? { ok: true } : { ok: false, error: `${res.status}: ${await res.text()}` };
+}
+
+export async function deletePost(
+  url: string,
+  serviceKey: string,
+  id: string
+): Promise<{ ok: boolean; error?: string }> {
+  const res = await fetch(`${url}/rest/v1/posts?id=eq.${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    headers: adminHeaders(serviceKey),
+  });
+  return res.ok ? { ok: true } : { ok: false, error: `${res.status}: ${await res.text()}` };
+}
+
+export function formToPostPayload(form: FormData): PostPayload {
+  return {
+    slug: String(form.get('slug') ?? '').trim(),
+    title: String(form.get('title') ?? '').trim(),
+    excerpt: String(form.get('excerpt') ?? '').trim(),
+    content: String(form.get('content') ?? '').trim(),
+    image: String(form.get('image') ?? '').trim(),
+    published: form.get('published') === 'on',
+  };
+}

@@ -1,0 +1,92 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPosts, getAllPosts, formatDate, type Post } from '../../../lib/posts';
+import { getEnv } from '../../../lib/env';
+
+const url = getEnv(Astro.locals, 'PUBLIC_SUPABASE_URL');
+const serviceKey = getEnv(Astro.locals, 'SUPABASE_SERVICE_ROLE_KEY');
+const dbConnected = Boolean(url && serviceKey);
+
+// Admin shows drafts too: service role bypasses the published-only RLS policy.
+let posts: Post[];
+if (dbConnected) {
+  try {
+    posts = await getAllPosts(url as string, serviceKey as string);
+  } catch (err) {
+    console.warn('[admin/posts] service-role fetch failed, using published list', err);
+    posts = await getPosts();
+  }
+} else {
+  posts = await getPosts();
+}
+
+const saved = Astro.url.searchParams.get('saved');
+---
+
+<BaseLayout title="ადმინი — სტატიები" description="სტატიების მართვა." index={false}>
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div>
+        <span class="kicker">ადმინი</span>
+        <h1 style="margin:0;">სტატიები</h1>
+      </div>
+      <div class="admin-actions">
+        {dbConnected && <a href="/admin/posts/new" class="btn btn-primary btn-small">+ ახალი სტატია</a>}
+        <a href="/admin" class="btn btn-dark btn-small">პროდუქტები</a>
+      </div>
+    </div>
+
+    {!dbConnected && (
+      <div class="notice notice-warn">
+        მონაცემთა ბაზა არ არის დაკავშირებული — სტატიების დამატება/რედაქტირება/წაშლა
+        მიუწვდომელია. ქვემოთ ნაჩვენებია სადემონტსრაციო მონაცემები.
+        დასაკავშირებლად დააყენეთ <code>PUBLIC_SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>
+        და <code>SUPABASE_SERVICE_ROLE_KEY</code>.
+      </div>
+    )}
+    {saved === '1' && <div class="notice notice-ok">ცვლილება შენახულია. საიტი რამდენიმე წუთში განახლდება.</div>}
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>სათაური</th>
+          <th>სლაგი</th>
+          <th>თარიღი</th>
+          <th>სტატუსი</th>
+          <th>მოქმედება</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          posts.map((p) => (
+            <tr>
+              <td><strong>{p.title}</strong></td>
+              <td><code>{p.slug}</code></td>
+              <td>{formatDate(p.created_at)}</td>
+              <td>{p.published ? 'გამოქვეყნებული' : 'დრაფტი'}</td>
+              <td>
+                {dbConnected ? (
+                  <div class="admin-actions">
+                    <a href={`/admin/posts/edit/${p.id}`} class="btn btn-dark btn-small">რედაქტირება</a>
+                    <form
+                      method="POST"
+                      action={`/api/posts/${p.id}`}
+                      onsubmit="return confirm('ნამდვილად გსურთ სტატიის წაშლა?');"
+                    >
+                      <input type="hidden" name="_method" value="delete" />
+                      <button type="submit" class="btn btn-danger btn-small">წაშლა</button>
+                    </form>
+                  </div>
+                ) : (
+                  <span class="link-muted">—</span>
+                )}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</BaseLayout>

@@ -10,11 +10,12 @@ interface Props {
   title: string;
   description: string;
   ogImage?: string;
+  ogType?: 'website' | 'article';
   /** Set false for admin pages that should not be indexed */
   index?: boolean;
 }
 
-const { title, description, ogImage = '/favicon.svg', index = true } = Astro.props;
+const { title, description, ogImage = '/favicon.svg', ogType = 'website', index = true } = Astro.props;
 
 const site = Astro.site ?? new URL('https://example.com');
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -34,7 +35,7 @@ const fullTitle = title.includes('GENERATORI.GE') ? title : `${title} | GENERATO
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="ka_GE" />
     <meta property="og:site_name" content="GENERATORI.GE" />
     <meta property="og:title" content={fullTitle} />

@@ -1,0 +1,70 @@
+---
+import type { Post } from '../../lib/posts';
+
+interface Props {
+  action: string;
+  post?: Post;
+}
+
+const { action, post } = Astro.props;
+---
+
+<form method="POST" action={action} enctype="multipart/form-data">
+  <div class="form-field">
+    <label for="title">სათაური (ქართულად)</label>
+    <input type="text" id="title" name="title" required value={post?.title ?? ''} />
+  </div>
+
+  <div class="form-field">
+    <label for="slug">სლაგი (ლათინურად, URL-ისთვის)</label>
+    <input type="text" id="slug" name="slug" required pattern="[a-z0-9\-]+" value={post?.slug ?? ''} />
+    <p class="form-hint">მხოლოდ პატარა ლათინური ასოები, ციფრები და ტირე — მაგ. rogor-avurchiot-dizel-generatori</p>
+  </div>
+
+  <div class="form-field">
+    <label for="excerpt">მოკლე აღწერა</label>
+    <input type="text" id="excerpt" name="excerpt" required value={post?.excerpt ?? ''} />
+    <p class="form-hint">გამოჩნდება სიაში და გამოყენდება SEO აღწერად.</p>
+  </div>
+
+  <div class="form-field">
+    <label for="content">სტატიის ტექსტი</label>
+    <textarea id="content" name="content" style="min-height: 260px;">{post?.content ?? ''}</textarea>
+    <p class="form-hint">
+      აბზაცები გამოიყოს ცარიელი ხაზით. ხაზი, რომელიც იწყება «## »-ით (ორი ძაღლუყა და ინტერვალი),
+      გამოჩნდება ქვესათაურად — მაგ. ## გამოთვალეთ საჭირო სიმძლავრე
+    </p>
+  </div>
+
+  <div class="form-field">
+    <label for="image">ყდის სურათის მისამართი (არასავალდებულო)</label>
+    <input type="text" id="image" name="image" value={post?.image ?? ''} />
+  </div>
+
+  <div class="form-field">
+    <label for="image_file">ან ატვირთეთ ყდის სურათი</label>
+    {post?.image && (
+      <img
+        src={post.image}
+        alt={`მიმდინარე სურათი — ${post.title}`}
+        width="160"
+        height="120"
+        style="width:160px; height:120px; object-fit:cover; border-radius:6px; border:1px solid var(--color-line); margin-bottom:8px;"
+      />
+    )}
+    <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/avif" />
+    <p class="form-hint">
+      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში
+      და უპირატესია ზედა ტექსტურ ველზე.
+    </p>
+  </div>
+
+  <div class="form-field">
+    <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
+      <input type="checkbox" name="published" style="width:auto;" checked={post?.published ?? true} />
+      გამოქვეყნებული (ხილულია საიტზე)
+    </label>
+  </div>
+
+  <button type="submit" class="btn btn-primary">შენახვა</button>
+</form>

@@ -3,8 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { CATEGORIES } from '../lib/categories';
 import { getFeaturedProducts } from '../lib/products';
+import { getPosts, formatDate } from '../lib/posts';
 
 const featured = await getFeaturedProducts(6);
+const latestPosts = (await getPosts()).slice(0, 3);
 
 const site = Astro.site ?? new URL('https://example.com');
 const jsonLd = {
@@ -136,6 +138,45 @@ const trustItems = [
       </div>
     </div>
   </section>
+
+  <!-- Latest articles -->
+  {
+    latestPosts.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <span class="kicker">ბლოგი</span>
+            <h2>ბოლო სტატიები</h2>
+            <p>რჩევები გენერატორების შერჩევასა და მოვლაში.</p>
+          </div>
+          <div class="product-grid">
+            {latestPosts.map((post) => (
+              <a href={`/blog/${post.slug}`} class="product-card">
+                {post.image && (
+                  <div class="product-card-img">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      width="800"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                <div class="product-card-body">
+                  <span class="post-date">{formatDate(post.created_at)}</span>
+                  <h3>{post.title}</h3>
+                  <p class="post-excerpt">{post.excerpt}</p>
+                  <span class="card-link" style="margin-top: auto;">წაიკითხეთ →</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <!-- Contact CTA -->
   <section class="section">

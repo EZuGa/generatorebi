@@ -983,6 +983,41 @@ p {
   font-size: 0.9rem;
 }
 
+/* ---------- blog ---------- */
+.post-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.post-excerpt {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  margin-bottom: 14px;
+}
+
+.post-cover {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 28px;
+}
+
+.prose {
+  max-width: 70ch;
+}
+
+.prose p {
+  line-height: 1.85;
+  color: #39424e;
+  margin-bottom: 1.1em;
+}
+
+.prose h2 {
+  font-size: 1.35rem;
+  margin: 1.7em 0 0.6em;
+}
+
 /* ---------- 404 ---------- */
 .notfound {
   text-align: center;
