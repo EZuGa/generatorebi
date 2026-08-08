@@ -1,4 +1,4 @@
-# GENERATORI.GE — heavy machinery catalog (Astro 5)
+# GENERATORI.COM.GE — heavy machinery catalog (Astro 5)
 
 A read-only online catalog of diesel generators, chillers and spare parts, with a
 password-protected admin area for a single site owner. All visitor-facing UI is in
@@ -41,7 +41,7 @@ Copy `.env.example` to `.env` (locally) or set these in Cloudflare Pages setting
 | `ADMIN_PASSWORD` | the single admin password |
 | `AUTH_SECRET` | random long string for HMAC cookie signing (`openssl rand -hex 32`) |
 | `DEPLOY_HOOK_URL` | Cloudflare Pages deploy hook — POST'ed after each admin mutation to rebuild the static site |
-| `SITE_URL` | canonical origin used for sitemap/canonical/OG (default `https://example.com`) |
+| `SITE_URL` | canonical origin used for sitemap/canonical/OG (default `https://generatori.com.ge`) |
 
 Without the Supabase variables the public site still works (sample data) and the
 admin login still works, but the dashboard shows a Georgian notice that CRUD is

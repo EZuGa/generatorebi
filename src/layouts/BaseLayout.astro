@@ -26,10 +26,10 @@ interface Props {
 
 const { title, description, ogImage = '/favicon.svg', ogType = 'website', index = true, lang = 'ka', bare = false } = Astro.props;
 
-const site = Astro.site ?? new URL('https://example.com');
+const site = Astro.site ?? new URL('https://generatori.com.ge');
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImageUrl = new URL(ogImage, site).href;
-const fullTitle = title.includes('GENERATORI.GE') ? title : `${title} | GENERATORI.GE`;
+const fullTitle = title.includes('GENERATORI.COM.GE') ? title : `${title} | GENERATORI.COM.GE`;
 
 // hreflang pair: slugs are shared, so the ka path is just the pathname minus /ru.
 const kaPath = stripRuPrefix(Astro.url.pathname);
@@ -54,7 +54,7 @@ const ruUrl = new URL(localePath(kaPath, 'ru'), site).href;
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'ka_GE'} />
-    <meta property="og:site_name" content="GENERATORI.GE" />
+    <meta property="og:site_name" content="GENERATORI.COM.GE" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
