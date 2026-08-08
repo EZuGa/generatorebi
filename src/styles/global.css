@@ -345,6 +345,31 @@ p {
   gap: 8px;
 }
 
+.footer-partners {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 24px;
+}
+
+.footer-partners a {
+  color: var(--color-steel);
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-partners a:hover {
+  color: #fff;
+}
+
+.footer-partners img {
+  display: block;
+}
+
 /* ---------- hero ---------- */
 .hero {
   position: relative;
