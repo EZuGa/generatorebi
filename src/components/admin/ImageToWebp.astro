@@ -1,0 +1,51 @@
+---
+/**
+ * Converts any image picked in the `image_file` input to WebP in the browser
+ * (canvas re-encode) before the form is submitted, so uploads to Supabase
+ * Storage are always WebP and smaller. Falls back to the original file when
+ * the browser cannot decode/encode it — the server accepts it as before.
+ */
+---
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('input[name="image_file"]');
+  if (input && !input.dataset.webpBound) {
+    input.dataset.webpBound = '1';
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0];
+      if (!file || file.type === 'image/webp') return;
+
+      try {
+        const bitmap = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(bitmap, 0, 0);
+        bitmap.close();
+
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, 'image/webp', 0.85)
+        );
+        // Keep the original if WebP encoding failed or produced nothing.
+        if (!blob || blob.size === 0) return;
+
+        const webpFile = new File([blob], file.name.replace(/\.[a-z0-9]+$/i, '') + '.webp', {
+          type: 'image/webp',
+        });
+        const dt = new DataTransfer();
+        dt.items.add(webpFile);
+        input.files = dt.files;
+
+        const note = input.parentElement?.querySelector('.webp-note');
+        if (note) {
+          const kb = (n: number) => `${Math.round(n / 1024)} KB`;
+          note.textContent = `გადაიქცა WebP-ში: ${kb(file.size)} → ${kb(blob.size)}`;
+        }
+      } catch {
+        // Decode failed (e.g. unsupported AVIF in this browser) — upload as-is.
+      }
+    });
+  }
+</script>

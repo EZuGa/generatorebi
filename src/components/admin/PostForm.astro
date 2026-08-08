@@ -1,4 +1,5 @@
 ---
+import ImageToWebp from './ImageToWebp.astro';
 import type { Post } from '../../lib/posts';
 
 interface Props {
@@ -50,8 +51,9 @@ const { action, post } = Astro.props;
       />
     )}
     <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/avif" />
+    <p class="form-hint webp-note"></p>
     <p class="form-hint">
-      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში.
+      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. ატვირთვამდე სურათი ავტომატურად გადაიქცევა WebP-ში ზომის შესამცირობლად.
       ახალი ფაილის არჩევის გარეშე შენახვისას მიმდინარე სურათი შენარჩუნდება.
     </p>
   </div>
@@ -65,3 +67,5 @@ const { action, post } = Astro.props;
 
   <button type="submit" class="btn btn-primary">შენახვა</button>
 </form>
+
+<ImageToWebp />
