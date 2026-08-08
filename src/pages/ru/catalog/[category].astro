@@ -1,0 +1,18 @@
+---
+import CatalogCategoryPage from '../../../components/pages/CatalogCategoryPage.astro';
+import { CATEGORIES, type Category } from '../../../lib/categories';
+import { getProductsByCategory, type Product } from '../../../lib/products';
+
+export async function getStaticPaths() {
+  const paths: { params: { category: string }; props: { category: Category; products: Product[] } }[] = [];
+  for (const category of CATEGORIES) {
+    const products = await getProductsByCategory(category.key, 'ru');
+    paths.push({ params: { category: category.slug }, props: { category, products } });
+  }
+  return paths;
+}
+
+const { category, products } = Astro.props;
+---
+
+<CatalogCategoryPage category={category} products={products} lang="ru" />

@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
+
+const copy = {
+  ka: {
+    title: 'კონტაქტი',
+    description:
+      'დაგვიკავშირდით: +995 595 59 41 00, madcom777@mail.ru — თბილისი, რუსთავის გზატკეცილი №2. სამუშაო საათები: ორშ–შაბ 09:00–18:00.',
+    heroKicker: 'კონტაქტი',
+    heroHeading: 'დაგვიკავშირდით',
+    heroSub: 'კონსულტაცია, ფასის მითითება ან სერვისის მოთხოვნა — ჩვენ მუდმივად ხაზზე ვართ.',
+    cards: [
+      {
+        heading: 'ტელეფონი',
+        href: 'tel:+995595594100',
+        value: '+995 595 59 41 00',
+        text: 'ზარები მიიღება სამუშაო საათებში; საგანგებო ხაზი — 24/7.',
+      },
+      {
+        heading: 'ელფოსტა',
+        href: 'mailto:madcom777@mail.ru',
+        value: 'madcom777@mail.ru',
+        text: 'მოგვწერეთ ტექნიკური მოთხოვნები — ვპასუხობთ ერთი სამუშაო დღის განმავლობაში.',
+      },
+      {
+        heading: 'მისამართი',
+        value: t('ka', 'contact.address'),
+        text: 'საწყობი და შოურუმი იმავე მისამართზე მდებარეობს.',
+      },
+      {
+        heading: 'სამუშაო საათები',
+        value: t('ka', 'contact.hours'),
+        text: 'კვირა — დასვენება. საგანგებო სერვისი მუშაობს მუდმივად.',
+      },
+    ],
+    ctaHeading: 'ფასის მისაღებად ყველაზე სწრაფი გზა — ზარი',
+    ctaText: 'მოგვყევით რა სიმძლავრის აგრეგატი გჭირდებათ და სად — პასუხი 5 წუთში.',
+  },
+  ru: {
+    title: 'Контакты',
+    description:
+      'Свяжитесь с нами: +995 595 59 41 00, madcom777@mail.ru — Тбилиси, Руставское шоссе №2. Режим работы: Пн–Сб 09:00–18:00.',
+    heroKicker: 'Контакты',
+    heroHeading: 'Свяжитесь с нами',
+    heroSub: 'Консультация, расчёт стоимости или заявка на сервис — мы всегда на связи.',
+    cards: [
+      {
+        heading: 'Телефон',
+        href: 'tel:+995595594100',
+        value: '+995 595 59 41 00',
+        text: 'Звонки принимаются в рабочие часы; аварийная линия — 24/7.',
+      },
+      {
+        heading: 'Эл. почта',
+        href: 'mailto:madcom777@mail.ru',
+        value: 'madcom777@mail.ru',
+        text: 'Напишите нам технические требования — отвечаем в течение одного рабочего дня.',
+      },
+      {
+        heading: 'Адрес',
+        value: t('ru', 'contact.address'),
+        text: 'Склад и шоурум находятся по тому же адресу.',
+      },
+      {
+        heading: 'Режим работы',
+        value: t('ru', 'contact.hours'),
+        text: 'Воскресенье — выходной. Аварийный сервис работает круглосуточно.',
+      },
+    ],
+    ctaHeading: 'Самый быстрый способ узнать цену — звонок',
+    ctaText: 'Расскажите, агрегат какой мощности вам нужен и где — ответ через 5 минут.',
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<BaseLayout title={c.title} description={c.description} lang={lang}>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">{c.heroKicker}</span>
+      <h1>{c.heroHeading}</h1>
+      <p>{c.heroSub}</p>
+    </div>
+  </section>
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><span aria-current="page">{t(lang, 'nav.contact')}</span></li>
+    </ol>
+  </nav>
+
+  <section class="section" style="padding-top: 32px;">
+    <div class="container">
+      <div class="contact-grid">
+        {
+          c.cards.map((card) => (
+            <div class="contact-card">
+              <h2>{card.heading}</h2>
+              {'href' in card && card.href ? (
+                <a href={card.href}>{card.value}</a>
+              ) : (
+                <a>{card.value}</a>
+              )}
+              <p>{card.text}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="cta-band" style="margin-top: 44px;">
+        <div>
+          <h2>{c.ctaHeading}</h2>
+          <p>{c.ctaText}</p>
+        </div>
+        <a href="tel:+995595594100" class="btn btn-dark">+995 595 59 41 00</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

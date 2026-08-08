@@ -76,6 +76,34 @@ const specsText = product ? specsToText(product.specs) : '';
     <p class="form-hint">თითო ხაზზე: ეტიკეტი | მნიშვნელობა — მაგ. სიმძლავრე | 100 kVA</p>
   </div>
 
+  <fieldset style="border:1px solid var(--color-line); border-radius: var(--radius-sm); padding: 16px 16px 4px; margin-bottom: 18px;">
+    <legend style="font-weight:700; font-size:0.95rem; padding: 0 6px;">რუსული თარგმანი (არასავალდებულო)</legend>
+    <p class="form-hint" style="margin-bottom: 14px;">
+      ცარიელი ველების მაგივრად რუსულ გვერდებზე ქართული ტექსტი გამოჩნდება.
+    </p>
+
+    <div class="form-field">
+      <label for="name_ru">დასახელება (რუსულად)</label>
+      <input type="text" id="name_ru" name="name_ru" value={product?.name_ru ?? ''} />
+    </div>
+
+    <div class="form-field">
+      <label for="short_desc_ru">მოკლე აღწერა (რუსულად)</label>
+      <input type="text" id="short_desc_ru" name="short_desc_ru" value={product?.short_desc_ru ?? ''} />
+    </div>
+
+    <div class="form-field">
+      <label for="description_ru">სრული აღწერა (რუსულად)</label>
+      <textarea id="description_ru" name="description_ru">{product?.description_ru ?? ''}</textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="specs_ru">მახასიათებლები (რუსულად)</label>
+      <textarea id="specs_ru" name="specs_ru">{product?.specs_ru ? specsToText(product.specs_ru) : ''}</textarea>
+      <p class="form-hint">იგივე ფორმატი: ეტიკეტი | მნიშვნელობა — მაგ. Мощность | 100 kVA</p>
+    </div>
+  </fieldset>
+
   <div class="form-field">
     <label style="display:flex; align-items:center; gap:8px; font-weight:600;">
       <input type="checkbox" name="featured" style="width:auto;" checked={product?.featured ?? false} />

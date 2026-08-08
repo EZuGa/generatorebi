@@ -1,11 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SpecTable from '../../components/SpecTable.astro';
-import { getProducts, descriptionParagraphs, type Product } from '../../lib/products';
-import { categoryByKey } from '../../lib/categories';
+import ProductPage from '../../components/pages/ProductPage.astro';
+import { getProducts, type Product } from '../../lib/products';
 
 export async function getStaticPaths() {
-  const products = await getProducts();
+  const products = await getProducts('ka');
   return products.map((product: Product) => ({
     params: { slug: product.slug },
     props: { product },
@@ -13,102 +11,6 @@ export async function getStaticPaths() {
 }
 
 const { product } = Astro.props;
-const category = categoryByKey(product.category);
-const paragraphs = descriptionParagraphs(product.description);
-
-const site = Astro.site ?? new URL('https://example.com');
-const productUrl = new URL(`/products/${product.slug}`, site).href;
-
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    description: product.short_desc,
-    image: new URL(product.image, site).href,
-    category: category?.name,
-    brand: { '@type': 'Brand', name: 'GENERATORI.GE' },
-    offers: {
-      '@type': 'Offer',
-      url: productUrl,
-      availability: 'https://schema.org/InStock',
-      priceCurrency: 'GEL',
-      // Price is on request («ფასი მოთხოვნით») — no numeric price is published.
-    },
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'მთავარი', item: site.href },
-      { '@type': 'ListItem', position: 2, name: 'კატალოგი', item: new URL('/catalog', site).href },
-      ...(category
-        ? [
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: category.name,
-              item: new URL(`/catalog/${category.slug}`, site).href,
-            },
-            { '@type': 'ListItem', position: 4, name: product.name, item: productUrl },
-          ]
-        : [{ '@type': 'ListItem', position: 3, name: product.name, item: productUrl }]),
-    ],
-  },
-];
 ---
 
-<BaseLayout
-  title={product.name}
-  description={`${product.name} — ${product.short_desc} ფასი მოთხოვნით. მიწოდება მთელ საქართველოში.`}
-  ogImage={product.image}
->
-  {jsonLd.map((schema) => <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />)}
-
-  <nav class="breadcrumbs container" aria-label="ბრედკრამბი">
-    <ol>
-      <li><a href="/">მთავარი</a></li>
-      <li><a href="/catalog">კატალოგი</a></li>
-      {category && <li><a href={`/catalog/${category.slug}`}>{category.name}</a></li>}
-      <li><span aria-current="page">{product.name}</span></li>
-    </ol>
-  </nav>
-
-  <article class="container">
-    <div class="product-layout">
-      <div class="product-media">
-        <img src={product.image} alt={product.name} width="800" height="600" decoding="async" />
-      </div>
-
-      <div class="product-info">
-        {category && <span class="badge">{category.name}</span>}
-        <h1>{product.name}</h1>
-        <p class="lead">{product.short_desc}</p>
-
-        <div class="product-price-box">
-          <div class="price">ფასი მოთხოვნით</div>
-          <p class="hint">ზუსტი ფასისა და მარაგის დასაზუსტებლად დაგვიკავშირდით.</p>
-        </div>
-
-        <div class="product-ctas">
-          <a href="tel:+995555000000" class="btn btn-primary">დაგვირეკეთ: +995 555 00 00 00</a>
-          <a href="/contact" class="btn btn-dark">კონტაქტი</a>
-        </div>
-      </div>
-    </div>
-
-    {
-      product.specs.length > 0 && (
-        <section class="spec-section">
-          <h2>ტექნიკური მახასიათებლები</h2>
-          <SpecTable specs={product.specs} />
-        </section>
-      )
-    }
-
-    <section class="description-section">
-      <h2>აღწერა</h2>
-      {paragraphs.map((p) => <p>{p}</p>)}
-    </section>
-  </article>
-</BaseLayout>
+<ProductPage product={product} lang="ka" />

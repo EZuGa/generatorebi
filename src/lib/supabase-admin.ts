@@ -12,6 +12,11 @@ export interface ProductPayload {
   image: string;
   specs: { label: string; value: string }[];
   featured: boolean;
+  /** Russian translations — optional, empty string means "fall back to Georgian". */
+  name_ru: string;
+  short_desc_ru: string;
+  description_ru: string;
+  specs_ru: { label: string; value: string }[];
 }
 
 function adminHeaders(serviceKey: string): Record<string, string> {
@@ -175,6 +180,10 @@ export function formToPayload(form: FormData): ProductPayload {
     image: String(form.get('image') ?? '/images/products/generator.svg').trim(),
     specs: parseSpecs(String(form.get('specs') ?? '')),
     featured: form.get('featured') === 'on',
+    name_ru: String(form.get('name_ru') ?? '').trim(),
+    short_desc_ru: String(form.get('short_desc_ru') ?? '').trim(),
+    description_ru: String(form.get('description_ru') ?? '').trim(),
+    specs_ru: parseSpecs(String(form.get('specs_ru') ?? '')),
   };
 }
 
@@ -187,6 +196,10 @@ export interface PostPayload {
   content: string;
   image: string;
   published: boolean;
+  /** Russian translations — optional, empty string means "fall back to Georgian". */
+  title_ru: string;
+  excerpt_ru: string;
+  content_ru: string;
 }
 
 export async function createPost(
@@ -236,5 +249,8 @@ export function formToPostPayload(form: FormData): PostPayload {
     content: String(form.get('content') ?? '').trim(),
     image: String(form.get('image') ?? '').trim(),
     published: form.get('published') === 'on',
+    title_ru: String(form.get('title_ru') ?? '').trim(),
+    excerpt_ru: String(form.get('excerpt_ru') ?? '').trim(),
+    content_ru: String(form.get('content_ru') ?? '').trim(),
   };
 }

@@ -1,5 +1,7 @@
 import samplePosts from '../data/posts.json';
+import samplePostsRu from '../data/posts.ru.json';
 import { hasSupabase } from './products';
+import type { Lang } from './i18n';
 
 export interface Post {
   id: string;
@@ -10,6 +12,10 @@ export interface Post {
   image: string;
   published: boolean;
   created_at: string;
+  /** Optional Russian translations (Supabase columns; empty = fall back to Georgian). */
+  title_ru?: string;
+  excerpt_ru?: string;
+  content_ru?: string;
 }
 
 // Memoized for static generation; skipped in dev so edits show up immediately.
@@ -20,8 +26,8 @@ let cache: Post[] | null = null;
  * (RLS on the table only exposes published rows to the anon key), otherwise
  * falls back to the bundled sample posts so the site always builds.
  */
-export async function getPosts(): Promise<Post[]> {
-  if (cache && !import.meta.env.DEV) return cache;
+export async function getPosts(lang: Lang = 'ka'): Promise<Post[]> {
+  if (cache && !import.meta.env.DEV) return lang === 'ka' ? cache : cache.map((p) => localizePost(p));
 
   let posts: Post[] = samplePosts as Post[];
   if (hasSupabase()) {
@@ -49,7 +55,24 @@ export async function getPosts(): Promise<Post[]> {
     .filter((p) => p.published)
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
   if (!import.meta.env.DEV) cache = published;
-  return published;
+  return lang === 'ka' ? published : published.map((p) => localizePost(p));
+}
+
+/** Bundled Russian translations keyed by slug — fallback when Supabase rows have no *_ru fields. */
+const ruBySlug = new Map((samplePostsRu as Post[]).map((p) => [p.slug, p]));
+
+/**
+ * Russian view of a post: Supabase *_ru columns win, then the bundled
+ * ru JSON by slug, then the Georgian text as a last resort.
+ */
+function localizePost(p: Post): Post {
+  const ru = ruBySlug.get(p.slug);
+  return {
+    ...p,
+    title: p.title_ru?.trim() || ru?.title || p.title,
+    excerpt: p.excerpt_ru?.trim() || ru?.excerpt || p.excerpt,
+    content: p.content_ru?.trim() || ru?.content || p.content,
+  };
 }
 
 /**
@@ -67,8 +90,8 @@ export async function getAllPosts(url: string, serviceKey: string): Promise<Post
   return (await res.json()) as Post[];
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | undefined> {
-  const posts = await getPosts();
+export async function getPostBySlug(slug: string, lang: Lang = 'ka'): Promise<Post | undefined> {
+  const posts = await getPosts(lang);
   return posts.find((p) => p.slug === slug);
 }
 
@@ -100,9 +123,9 @@ export function renderInline(text: string): string {
   );
 }
 
-/** Georgian long-form date, e.g. «8 ოქტომბერი, 2024». */
-export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('ka-GE', {
+/** Long-form date in the page's locale, e.g. «8 ოქტომბერი, 2024» / «8 октября 2024 г.» */
+export function formatDate(iso: string, lang: Lang = 'ka'): string {
+  return new Date(iso).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'ka-GE', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

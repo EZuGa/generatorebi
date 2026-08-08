@@ -1,18 +1,29 @@
 ---
 import type { Product } from '../lib/products';
 import { categoryName } from '../lib/categories';
+import { localePath, t, type Lang } from '../lib/i18n';
 
 interface Props {
   product: Product;
   /** First-row images should load eagerly; pass true to lazy-load. */
   lazy?: boolean;
+  lang?: Lang;
 }
 
-const { product, lazy = true } = Astro.props;
+const { product, lazy = true, lang = 'ka' } = Astro.props;
 const chips = product.specs.slice(0, 2);
+// Haystack for the client-side catalog search: name, category, every spec and the description.
+const searchText = [
+  product.name,
+  categoryName(product.category, lang),
+  product.short_desc,
+  ...product.specs.flatMap((s) => [s.label, s.value]),
+]
+  .join(' ')
+  .toLowerCase();
 ---
 
-<a href={`/products/${product.slug}`} class="product-card">
+<a href={localePath(`/products/${product.slug}`, lang)} class="product-card" data-search={searchText}>
   <div class="product-card-img">
     <img
       src={product.image}
@@ -22,7 +33,7 @@ const chips = product.specs.slice(0, 2);
       loading={lazy ? 'lazy' : 'eager'}
       decoding="async"
     />
-    <span class="badge">{categoryName(product.category)}</span>
+    <span class="badge">{categoryName(product.category, lang)}</span>
   </div>
   <div class="product-card-body">
     <h3>{product.name}</h3>
@@ -35,7 +46,7 @@ const chips = product.specs.slice(0, 2);
         </div>
       )
     }
-    <span class="price-line">ფასი მოთხოვნით</span>
-    <span class="card-link">დეტალურად →</span>
+    <span class="price-line">{t(lang, 'product.priceOnRequest')}</span>
+    <span class="card-link">{t(lang, 'product.details')}</span>
   </div>
 </a>

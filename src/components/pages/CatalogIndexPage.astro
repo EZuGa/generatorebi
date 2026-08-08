@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../ProductCard.astro';
+import { getProducts } from '../../lib/products';
+import { CATEGORIES, categoryName } from '../../lib/categories';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
+
+const products = await getProducts(lang);
+
+const copy = {
+  ka: {
+    title: 'კატალოგი — დიზელ-გენერატორები, ჩილერები, ნაწილები',
+    description:
+      'სრული კატალოგი: დიზელ-გენერატორები 20–500 kVA, სამრეწველო ჩილერები და სათადარიგო ნაწილები მარაგიდან, თბილისი.',
+    heroKicker: 'კატალოგი',
+    heroHeading: 'პროდუქციის სრული კატალოგი',
+    heroCount: `${products.length} პოზიცია: გენერატორები, ჩილერები და სათადარიგო ნაწილები.`,
+  },
+  ru: {
+    title: 'Каталог — дизель-генераторы, чиллеры, запчасти',
+    description:
+      'Полный каталог: дизель-генераторы 20–500 кВА, промышленные чиллеры и запасные части со склада в Тбилиси.',
+    heroKicker: 'Каталог',
+    heroHeading: 'Полный каталог продукции',
+    heroCount: `Позиций в каталоге: ${products.length} — генераторы, чиллеры и запчасти.`,
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<BaseLayout title={c.title} description={c.description} lang={lang}>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">{c.heroKicker}</span>
+      <h1>{c.heroHeading}</h1>
+      <p>{c.heroCount}</p>
+    </div>
+  </section>
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><span aria-current="page">{t(lang, 'nav.catalog')}</span></li>
+    </ol>
+  </nav>
+
+  <section class="section" style="padding-top: 32px;">
+    <div class="container">
+      <div class="catalog-search" role="search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="search"
+          id="catalog-search-input"
+          placeholder={t(lang, 'search.placeholder')}
+          aria-label={t(lang, 'search.aria')}
+          autocomplete="off"
+        />
+      </div>
+
+      <p class="catalog-no-results" id="catalog-no-results" hidden>
+        {t(lang, 'search.noResults')}
+      </p>
+
+      {
+        CATEGORIES.map((cat) => {
+          const items = products.filter((p) => p.category === cat.key);
+          if (items.length === 0) return null;
+          return (
+            <div class="catalog-category" style="margin-bottom: 56px;">
+              <div class="section-head" style="margin-bottom: 24px;">
+                <span class="kicker">{categoryName(cat.key, lang)}</span>
+                <h2>
+                  <a href={localePath(`/catalog/${cat.slug}`, lang)} style="text-decoration:none;">{categoryName(cat.key, lang)}</a>
+                </h2>
+              </div>
+              <div class="product-grid">
+                {items.map((product) => (
+                  <ProductCard product={product} lang={lang} />
+                ))}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <script>
+    // Client-side filter over the server-rendered cards — all products stay in
+    // the initial HTML for crawlers; search is progressive enhancement only.
+    const input = document.getElementById('catalog-search-input') as HTMLInputElement | null;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.product-card[data-search]'));
+    const groups = Array.from(document.querySelectorAll<HTMLElement>('.catalog-category'));
+    const noResults = document.getElementById('catalog-no-results');
+
+    input?.addEventListener('input', () => {
+      const query = input.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      for (const card of cards) {
+        const hit = !query || (card.dataset.search ?? '').includes(query);
+        card.style.display = hit ? '' : 'none';
+        if (hit) visibleCount++;
+      }
+
+      // Hide category sections whose cards all filtered out.
+      for (const group of groups) {
+        const anyVisible = Array.from(group.querySelectorAll<HTMLElement>('.product-card')).some(
+          (card) => card.style.display !== 'none'
+        );
+        group.style.display = anyVisible ? '' : 'none';
+      }
+
+      if (noResults) noResults.hidden = visibleCount !== 0;
+    });
+  </script>
+</BaseLayout>

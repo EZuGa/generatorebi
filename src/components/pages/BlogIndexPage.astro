@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts, formatDate } from '../../lib/posts';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
+
+const posts = await getPosts(lang);
+
+const copy = {
+  ka: {
+    title: 'სტატიები — გენერატორების შერჩევა, მოვლა, რჩევები',
+    description:
+      'სასარგებლო სტატიები დიზელ-გენერატორებისა და სამრეწველო აღჭურვილობის შესახებ: შერჩევა, ექსპლუატაცია, მოვლა და სერვისი.',
+    heroKicker: 'ბლოგი',
+    heroHeading: 'სტატიები',
+    heroSub: 'რჩევები და გამოცდილება გენერატორების შერჩევასა და ექსპლუატაციაში.',
+    empty: 'სტატიები მალე დაემატება.',
+  },
+  ru: {
+    title: 'Статьи — выбор, обслуживание и советы по генераторам',
+    description:
+      'Полезные статьи о дизель-генераторах и промышленном оборудовании: выбор, эксплуатация, обслуживание и сервис.',
+    heroKicker: 'Блог',
+    heroHeading: 'Статьи',
+    heroSub: 'Советы и опыт по выбору и эксплуатации генераторов.',
+    empty: 'Статьи скоро появятся.',
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<BaseLayout title={c.title} description={c.description} lang={lang}>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">{c.heroKicker}</span>
+      <h1>{c.heroHeading}</h1>
+      <p>{c.heroSub}</p>
+    </div>
+  </section>
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><span aria-current="page">{t(lang, 'nav.blog')}</span></li>
+    </ol>
+  </nav>
+
+  <section class="section" style="padding-top: 32px;">
+    <div class="container">
+      {
+        posts.length > 0 ? (
+          <div class="product-grid">
+            {posts.map((post) => (
+              <a href={localePath(`/blog/${post.slug}`, lang)} class="product-card">
+                {post.image && (
+                  <div class="product-card-img">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      width="800"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                <div class="product-card-body">
+                  <span class="post-date">{formatDate(post.created_at, lang)}</span>
+                  <h3>{post.title}</h3>
+                  <p class="post-excerpt">{post.excerpt}</p>
+                  <span class="card-link" style="margin-top: auto;">{t(lang, 'blog.read')}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p>{c.empty}</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

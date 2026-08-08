@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../ProductCard.astro';
+import { categoryName, categoryDesc, type Category } from '../../lib/categories';
+import type { Product } from '../../lib/products';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  category: Category;
+  products: Product[];
+  lang?: Lang;
+}
+
+const { category, products, lang = 'ka' } = Astro.props;
+
+const name = categoryName(category.key, lang);
+const desc = categoryDesc(category.key, lang);
+
+const copy = {
+  ka: {
+    description: `${name}: ${desc} ნახეთ სრული არჩევანი GENERATORI.GE-ზე — ფასი მოთხოვნით, მიწოდება მთელ საქართველოში.`,
+    empty: 'ამ კატეგორიაში პროდუქტები მალე დაემატება.',
+  },
+  ru: {
+    description: `${name}: ${desc} Смотрите полный ассортимент на GENERATORI.GE — цена по запросу, доставка по всей Грузии.`,
+    empty: 'Товары в этой категории скоро появятся.',
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<BaseLayout title={`${name} — ${t(lang, 'nav.catalog')}`} description={c.description} lang={lang}>
+  <section class="page-hero">
+    <div class="container">
+      <span class="kicker">{t(lang, 'nav.catalog')}</span>
+      <h1>{name}</h1>
+      <p>{desc}</p>
+    </div>
+  </section>
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><a href={localePath('/catalog', lang)}>{t(lang, 'nav.catalog')}</a></li>
+      <li><span aria-current="page">{name}</span></li>
+    </ol>
+  </nav>
+
+  <section class="section" style="padding-top: 32px;">
+    <div class="container">
+      {
+        products.length > 0 ? (
+          <div class="product-grid">
+            {products.map((product) => (
+              <ProductCard product={product} lang={lang} />
+            ))}
+          </div>
+        ) : (
+          <p>{c.empty}</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

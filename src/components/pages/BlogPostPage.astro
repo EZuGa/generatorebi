@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { contentParagraphs, renderInline, formatDate, type Post } from '../../lib/posts';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  post: Post;
+  lang?: Lang;
+}
+
+const { post, lang = 'ka' } = Astro.props;
+const blocks = contentParagraphs(post.content);
+
+// Post bodies contain root-relative markdown links; on ru pages they must
+// stay inside the /ru prefix.
+const renderBlock = (block: string): string =>
+  lang === 'ru' ? renderInline(block).replace(/href="\//g, 'href="/ru/') : renderInline(block);
+
+const copy = {
+  ka: {
+    ctaHeading: 'გაგიჩნდათ კითხვა გენერატორის შერჩევაზე?',
+    ctaText: 'დაგვირეკეთ — კონსულტაცია უფასოა.',
+  },
+  ru: {
+    ctaHeading: 'Остались вопросы по выбору генератора?',
+    ctaText: 'Позвоните нам — консультация бесплатна.',
+  },
+} as const;
+
+const c = copy[lang];
+
+const site = Astro.site ?? new URL('https://example.com');
+const postUrl = new URL(localePath(`/blog/${post.slug}`, lang), site).href;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.created_at,
+    ...(post.image ? { image: new URL(post.image, site).href } : {}),
+    author: {
+      '@type': 'Organization',
+      name: 'GENERATORI.GE',
+      url: site.href,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GENERATORI.GE',
+      url: site.href,
+    },
+    mainEntityOfPage: postUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t(lang, 'breadcrumb.home'), item: new URL(localePath('/', lang), site).href },
+      { '@type': 'ListItem', position: 2, name: t(lang, 'nav.blog'), item: new URL(localePath('/blog', lang), site).href },
+      { '@type': 'ListItem', position: 3, name: post.title, item: postUrl },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={post.title}
+  description={post.excerpt}
+  ogType="article"
+  {...(post.image ? { ogImage: post.image } : {})}
+  lang={lang}
+>
+  {jsonLd.map((schema) => <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />)}
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><a href={localePath('/blog', lang)}>{t(lang, 'nav.blog')}</a></li>
+      <li><span aria-current="page">{post.title}</span></li>
+    </ol>
+  </nav>
+
+  <article class="container section" style="padding-top: 28px;">
+    <div class="prose">
+      <span class="post-date">{formatDate(post.created_at, lang)}</span>
+      <h1 style="margin: 8px 0 20px;">{post.title}</h1>
+
+      {
+        post.image && (
+          <img
+            src={post.image}
+            alt={post.title}
+            width="800"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            class="post-cover"
+          />
+        )
+      }
+
+      {
+        blocks.map((block) =>
+          block.startsWith('## ') ? (
+            <h2>{block.slice(3)}</h2>
+          ) : (
+            <p set:html={renderBlock(block)} />
+          )
+        )
+      }
+    </div>
+
+    <div class="cta-band" style="margin-top: 48px;">
+      <div>
+        <h2>{c.ctaHeading}</h2>
+        <p>{c.ctaText}</p>
+      </div>
+      <a href="tel:+995595594100" class="btn btn-dark">+995 595 59 41 00</a>
+    </div>
+  </article>
+</BaseLayout>

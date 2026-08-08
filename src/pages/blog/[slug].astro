@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPosts, contentParagraphs, renderInline, formatDate, type Post } from '../../lib/posts';
+import BlogPostPage from '../../components/pages/BlogPostPage.astro';
+import { getPosts, type Post } from '../../lib/posts';
 
 export async function getStaticPaths() {
-  const posts = await getPosts();
+  const posts = await getPosts('ka');
   return posts.map((post: Post) => ({
     params: { slug: post.slug },
     props: { post },
@@ -11,95 +11,6 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const blocks = contentParagraphs(post.content);
-
-const site = Astro.site ?? new URL('https://example.com');
-const postUrl = new URL(`/blog/${post.slug}`, site).href;
-
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.created_at,
-    ...(post.image ? { image: new URL(post.image, site).href } : {}),
-    author: {
-      '@type': 'Organization',
-      name: 'GENERATORI.GE',
-      url: site.href,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'GENERATORI.GE',
-      url: site.href,
-    },
-    mainEntityOfPage: postUrl,
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'მთავარი', item: site.href },
-      { '@type': 'ListItem', position: 2, name: 'სტატიები', item: new URL('/blog', site).href },
-      { '@type': 'ListItem', position: 3, name: post.title, item: postUrl },
-    ],
-  },
-];
 ---
 
-<BaseLayout
-  title={post.title}
-  description={post.excerpt}
-  ogType="article"
-  {...(post.image ? { ogImage: post.image } : {})}
->
-  {jsonLd.map((schema) => <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />)}
-
-  <nav class="breadcrumbs container" aria-label="ბრედკრამბი">
-    <ol>
-      <li><a href="/">მთავარი</a></li>
-      <li><a href="/blog">სტატიები</a></li>
-      <li><span aria-current="page">{post.title}</span></li>
-    </ol>
-  </nav>
-
-  <article class="container section" style="padding-top: 28px;">
-    <div class="prose">
-      <span class="post-date">{formatDate(post.created_at)}</span>
-      <h1 style="margin: 8px 0 20px;">{post.title}</h1>
-
-      {
-        post.image && (
-          <img
-            src={post.image}
-            alt={post.title}
-            width="800"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            class="post-cover"
-          />
-        )
-      }
-
-      {
-        blocks.map((block) =>
-          block.startsWith('## ') ? (
-            <h2>{block.slice(3)}</h2>
-          ) : (
-            <p set:html={renderInline(block)} />
-          )
-        )
-      }
-    </div>
-
-    <div class="cta-band" style="margin-top: 48px;">
-      <div>
-        <h2>გაგიჩნდათ კითხვა გენერატორის შერჩევაზე?</h2>
-        <p>დაგვირეკეთ — კონსულტაცია უფასოა.</p>
-      </div>
-      <a href="tel:+995555000000" class="btn btn-dark">+995 555 00 00 00</a>
-    </div>
-  </article>
-</BaseLayout>
+<BlogPostPage post={post} lang="ka" />

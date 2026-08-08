@@ -12,6 +12,14 @@ export default defineConfig({
     sitemap({
       // Admin area is noindex and disallowed in robots.txt — keep it out of the sitemap.
       filter: (page) => !page.includes('/admin'),
+      // ka at root (default), ru under /ru — emits xhtml-link hreflang alternates.
+      i18n: {
+        defaultLocale: 'ka',
+        locales: {
+          ka: 'ka-GE',
+          ru: 'ru-RU',
+        },
+      },
     }),
   ],
 });

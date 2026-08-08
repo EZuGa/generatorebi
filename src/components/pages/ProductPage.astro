@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SpecTable from '../SpecTable.astro';
+import { descriptionParagraphs, type Product } from '../../lib/products';
+import { categoryByKey, categoryName } from '../../lib/categories';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  product: Product;
+  lang?: Lang;
+}
+
+const { product, lang = 'ka' } = Astro.props;
+const category = categoryByKey(product.category);
+const categoryLabel = category ? categoryName(category.key, lang) : undefined;
+const paragraphs = descriptionParagraphs(product.description);
+
+const copy = {
+  ka: {
+    metaDescription: `${product.name} — ${product.short_desc} ფასი მოთხოვნით. მიწოდება მთელ საქართველოში.`,
+    priceHint: 'ზუსტი ფასისა და მარაგის დასაზუსტებლად დაგვიკავშირდით.',
+    callCta: 'დაგვირეკეთ: +995 595 59 41 00',
+    specsHeading: 'ტექნიკური მახასიათებლები',
+    descHeading: 'აღწერა',
+  },
+  ru: {
+    metaDescription: `${product.name} — ${product.short_desc} Цена по запросу. Доставка по всей Грузии.`,
+    priceHint: 'Чтобы уточнить точную цену и наличие, свяжитесь с нами.',
+    callCta: 'Позвоните нам: +995 595 59 41 00',
+    specsHeading: 'Технические характеристики',
+    descHeading: 'Описание',
+  },
+} as const;
+
+const c = copy[lang];
+
+const site = Astro.site ?? new URL('https://example.com');
+const productUrl = new URL(localePath(`/products/${product.slug}`, lang), site).href;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.short_desc,
+    image: new URL(product.image, site).href,
+    category: categoryLabel,
+    brand: { '@type': 'Brand', name: 'GENERATORI.GE' },
+    offers: {
+      '@type': 'Offer',
+      url: productUrl,
+      availability: 'https://schema.org/InStock',
+      priceCurrency: 'GEL',
+      // Price is on request — no numeric price is published.
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: t(lang, 'breadcrumb.home'), item: new URL(localePath('/', lang), site).href },
+      { '@type': 'ListItem', position: 2, name: t(lang, 'nav.catalog'), item: new URL(localePath('/catalog', lang), site).href },
+      ...(category
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: categoryLabel,
+              item: new URL(localePath(`/catalog/${category.slug}`, lang), site).href,
+            },
+            { '@type': 'ListItem', position: 4, name: product.name, item: productUrl },
+          ]
+        : [{ '@type': 'ListItem', position: 3, name: product.name, item: productUrl }]),
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={product.name}
+  description={c.metaDescription}
+  ogImage={product.image}
+  lang={lang}
+>
+  {jsonLd.map((schema) => <script slot="head" type="application/ld+json" set:html={JSON.stringify(schema)} />)}
+
+  <nav class="breadcrumbs container" aria-label={t(lang, 'aria.breadcrumbs')}>
+    <ol>
+      <li><a href={localePath('/', lang)}>{t(lang, 'breadcrumb.home')}</a></li>
+      <li><a href={localePath('/catalog', lang)}>{t(lang, 'nav.catalog')}</a></li>
+      {category && <li><a href={localePath(`/catalog/${category.slug}`, lang)}>{categoryLabel}</a></li>}
+      <li><span aria-current="page">{product.name}</span></li>
+    </ol>
+  </nav>
+
+  <article class="container">
+    <div class="product-layout">
+      <div class="product-media">
+        <img src={product.image} alt={product.name} width="800" height="600" decoding="async" />
+      </div>
+
+      <div class="product-info">
+        {categoryLabel && <span class="badge">{categoryLabel}</span>}
+        <h1>{product.name}</h1>
+        <p class="lead">{product.short_desc}</p>
+
+        <div class="product-price-box">
+          <div class="price">{t(lang, 'product.priceOnRequest')}</div>
+          <p class="hint">{c.priceHint}</p>
+        </div>
+
+        <div class="product-ctas">
+          <a href="tel:+995595594100" class="btn btn-primary">{c.callCta}</a>
+          <a href={localePath('/contact', lang)} class="btn btn-dark">{t(lang, 'nav.contact')}</a>
+        </div>
+      </div>
+    </div>
+
+    {
+      product.specs.length > 0 && (
+        <section class="spec-section">
+          <h2>{c.specsHeading}</h2>
+          <SpecTable specs={product.specs} />
+        </section>
+      )
+    }
+
+    <section class="description-section">
+      <h2>{c.descHeading}</h2>
+      {paragraphs.map((p) => <p>{p}</p>)}
+    </section>
+  </article>
+</BaseLayout>

@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { localePath, type Lang } from '../../lib/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
+
+const copy = {
+  ka: {
+    title: 'გვერდი ვერ მოიძებნა — 404',
+    description: 'მოთხოვნილი გვერდი არ არსებობს ან გადატანილია.',
+    heading: 'გვერდი ვერ მოიძებნა',
+    text: 'მოთხოვნილი გვერდი არ არსებობს ან წაშლილია. სცადეთ კატალოგი ან მთავარი გვერდი.',
+    catalogCta: 'კატალოგში დაბრუნება',
+    homeCta: 'მთავარი',
+  },
+  ru: {
+    title: 'Страница не найдена — 404',
+    description: 'Запрашиваемая страница не существует или была перемещена.',
+    heading: 'Страница не найдена',
+    text: 'Запрашиваемая страница не существует или была удалена. Попробуйте каталог или главную страницу.',
+    catalogCta: 'Вернуться в каталог',
+    homeCta: 'Главная',
+  },
+} as const;
+
+const c = copy[lang];
+---
+
+<BaseLayout title={c.title} description={c.description} index={false} lang={lang}>
+  <div class="container notfound">
+    <div class="code">404</div>
+    <h1>{c.heading}</h1>
+    <p style="color: var(--color-muted);">
+      {c.text}
+    </p>
+    <p>
+      <a href={localePath('/catalog', lang)} class="btn btn-primary">{c.catalogCta}</a>
+      <a href={localePath('/', lang)} class="btn btn-dark" style="margin-left: 10px;">{c.homeCta}</a>
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,277 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../ProductCard.astro';
+import { CATEGORIES, categoryName, categoryDesc } from '../../lib/categories';
+import { getFeaturedProducts } from '../../lib/products';
+import { getPosts, formatDate } from '../../lib/posts';
+import { localePath, t, type Lang } from '../../lib/i18n';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
+
+const featured = await getFeaturedProducts(6, lang);
+const latestPosts = (await getPosts(lang)).slice(0, 3);
+
+const copy = {
+  ka: {
+    title: 'დიზელ-გენერატორები, ჩილერები და სათადარიგო ნაწილები საქართველოში',
+    description:
+      'დიზელ-გენერატორები 20–500 kVA, სამრეწველო ჩილერები და ორიგინალი სათადარიგო ნაწილები. მიწოდება მთელ საქართველოში, გარანტია და 24/7 სერვისი.',
+    businessDescription:
+      'დიზელ-გენერატორების, სამრეწველო ჩილერებისა და სათადარიგო ნაწილების მიწოდება საქართველოში.',
+    streetAddress: 'რუსთავის გზატკეცილი №2',
+    addressLocality: 'თბილისი',
+    heroKicker: 'სამრეწველო აღჭურვილობა',
+    heroLead: 'დიზელ-გენერატორები და ',
+    heroEm: 'სამრეწველო აღჭურვილობა',
+    heroSub:
+      'ენერგოუსაფრთხოება თქვენი ბიზნესისთვის: გენერატორები 20-დან 500 kVA-მდე, ჰაეროვანი ჩილერები და ორიგინალი სათადარიგო ნაწილები — მარაგიდან, თბილისიდან.',
+    heroPrimary: 'კატალოგის ნახვა',
+    heroSecondary: 'დაგვიკავშირდით',
+    stats: ['150+ ერთეული მარაგში', '24/7 მხარდაჭერა', 'მიწოდება მთელ საქართველოში'],
+    catKicker: 'კატეგორიები',
+    catHeading: 'პროდუქციის მიმართულებები',
+    catSub: 'სამი ძირითადი მიმართულება — ენერგია, გაგრილება და მომსახურება.',
+    featKicker: 'რჩეული',
+    featHeading: 'გამორჩეული პროდუქტები',
+    featSub: 'ყველაზე მოთხოვნადი მოდელები მარაგიდან.',
+    featAll: 'სრული კატალოგი →',
+    trustKicker: 'რატომ ჩვენ',
+    trustHeading: 'საიმედო პარტნიორი ენერგიისთვის',
+    blogKicker: 'ბლოგი',
+    blogHeading: 'ბოლო სტატიები',
+    blogSub: 'რჩევები გენერატორების შერჩევასა და მოვლაში.',
+    ctaHeading: 'გჭირდებათ კონსულტაცია ან ფასის მითითება?',
+    ctaText: 'დაგვირეკეთ — ჩვენი ინჟინერი დაგეხმარებათ სწორი აგრეგატის შერჩევაში.',
+    trustItems: [
+      {
+        title: 'ოფიციალური გარანტია',
+        text: 'ყველა აგრეგატზე ვრცელდება გარანტია და გრძელვადიანი სერვის-ხელშეკრულება.',
+        icon: 'M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z',
+      },
+      {
+        title: 'მიწოდება მთელ საქართველოში',
+        text: 'მიწოდება, მონტაჟი და გაშვება ნებისმიერ რეგიონში — თბილისი, ბათუმი, ქუთაისი.',
+        icon: 'M3 7h11v8H3z M14 10h4l3 3v2h-7z M5.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M17.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z',
+      },
+      {
+        title: '24/7 ტექნიკური მხარდაჭერა',
+        text: 'საგანგებო სიტუაციაში ჩვენი ინჟინრები საჭიროების შემთხვევაში ადგილზე გამოგივლიან.',
+        icon: 'M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3 3.7-3.7z',
+      },
+    ],
+  },
+  ru: {
+    title: 'Дизель-генераторы, чиллеры и запчасти в Грузии',
+    description:
+      'Дизель-генераторы 20–500 кВА, промышленные чиллеры и оригинальные запасные части. Доставка по всей Грузии, гарантия и сервис 24/7.',
+    businessDescription:
+      'Поставка дизель-генераторов, промышленных чиллеров и запасных частей по всей Грузии.',
+    streetAddress: 'Руставское шоссе №2',
+    addressLocality: 'Тбилиси',
+    heroKicker: 'Промышленное оборудование',
+    heroLead: 'Дизель-генераторы и ',
+    heroEm: 'промышленное оборудование',
+    heroSub:
+      'Энергонадёжность для вашего бизнеса: генераторы от 20 до 500 кВА, чиллеры воздушного охлаждения и оригинальные запасные части — со склада в Тбилиси.',
+    heroPrimary: 'Смотреть каталог',
+    heroSecondary: 'Связаться с нами',
+    stats: ['150+ единиц на складе', 'Поддержка 24/7', 'Доставка по всей Грузии'],
+    catKicker: 'Категории',
+    catHeading: 'Направления продукции',
+    catSub: 'Три основных направления — энергия, охлаждение и сервис.',
+    featKicker: 'Избранное',
+    featHeading: 'Популярные продукты',
+    featSub: 'Самые востребованные модели со склада.',
+    featAll: 'Полный каталог →',
+    trustKicker: 'Почему мы',
+    trustHeading: 'Надёжный партнёр в сфере энергетики',
+    blogKicker: 'Блог',
+    blogHeading: 'Последние статьи',
+    blogSub: 'Советы по выбору и обслуживанию генераторов.',
+    ctaHeading: 'Нужна консультация или расчёт стоимости?',
+    ctaText: 'Позвоните нам — наш инженер поможет подобрать подходящий агрегат.',
+    trustItems: [
+      {
+        title: 'Официальная гарантия',
+        text: 'На все агрегаты распространяется гарантия и долгосрочный сервисный контракт.',
+        icon: 'M12 22s8-3.6 8-10V5l-8-3-8 3v7c0 6.4 8 10 8 10z',
+      },
+      {
+        title: 'Доставка по всей Грузии',
+        text: 'Доставка, монтаж и запуск в любом регионе — Тбилиси, Батуми, Кутаиси.',
+        icon: 'M3 7h11v8H3z M14 10h4l3 3v2h-7z M5.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M17.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z',
+      },
+      {
+        title: 'Техническая поддержка 24/7',
+        text: 'В аварийной ситуации наши инженеры при необходимости выедут на объект.',
+        icon: 'M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3 3.7-3.7z',
+      },
+    ],
+  },
+} as const;
+
+const c = copy[lang];
+
+const site = Astro.site ?? new URL('https://example.com');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'GENERATORI.GE',
+  description: c.businessDescription,
+  url: site.href,
+  telephone: '+995595594100',
+  email: 'madcom777@mail.ru',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: c.streetAddress,
+    addressLocality: c.addressLocality,
+    addressCountry: 'GE',
+  },
+  openingHours: 'Mo-Sa 09:00-18:00',
+  areaServed: { '@type': 'Country', name: 'Georgia' },
+};
+---
+
+<BaseLayout title={c.title} description={c.description} lang={lang}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <span class="kicker">{c.heroKicker}</span>
+      <h1>{c.heroLead}<em>{c.heroEm}</em></h1>
+      <p class="hero-sub">
+        {c.heroSub}
+      </p>
+      <div class="hero-ctas">
+        <a href={localePath('/catalog', lang)} class="btn btn-primary">{c.heroPrimary}</a>
+        <a href={localePath('/contact', lang)} class="btn btn-outline">{c.heroSecondary}</a>
+      </div>
+      <div class="hero-stats">
+        {c.stats.map((stat) => <span class="stat-chip">{stat}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.catKicker}</span>
+        <h2>{c.catHeading}</h2>
+        <p>{c.catSub}</p>
+      </div>
+      <div class="cat-grid">
+        {
+          CATEGORIES.map((cat) => (
+            <a href={localePath(`/catalog/${cat.slug}`, lang)} class="cat-tile">
+              <img src={cat.image} alt={categoryName(cat.key, lang)} width="800" height="600" loading="lazy" decoding="async" />
+              <div class="cat-tile-body">
+                <h3>{categoryName(cat.key, lang)}</h3>
+                <p>{categoryDesc(cat.key, lang)}</p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured products -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.featKicker}</span>
+        <h2>{c.featHeading}</h2>
+        <p>{c.featSub}</p>
+      </div>
+      <div class="product-grid">
+        {featured.map((product, i) => <ProductCard product={product} lazy={i > 2} lang={lang} />)}
+      </div>
+      <p style="margin-top: 28px;">
+        <a href={localePath('/catalog', lang)} class="btn btn-dark">{c.featAll}</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Trust / USP band -->
+  <section class="section trust-band">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">{c.trustKicker}</span>
+        <h2 style="color:#fff;">{c.trustHeading}</h2>
+      </div>
+      <div class="trust-grid">
+        {
+          c.trustItems.map((item) => (
+            <div class="trust-item">
+              <span class="trust-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d={item.icon} />
+                </svg>
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest articles -->
+  {
+    latestPosts.length > 0 && (
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <span class="kicker">{c.blogKicker}</span>
+            <h2>{c.blogHeading}</h2>
+            <p>{c.blogSub}</p>
+          </div>
+          <div class="product-grid">
+            {latestPosts.map((post) => (
+              <a href={localePath(`/blog/${post.slug}`, lang)} class="product-card">
+                {post.image && (
+                  <div class="product-card-img">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      width="800"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                <div class="product-card-body">
+                  <span class="post-date">{formatDate(post.created_at, lang)}</span>
+                  <h3>{post.title}</h3>
+                  <p class="post-excerpt">{post.excerpt}</p>
+                  <span class="card-link" style="margin-top: auto;">{t(lang, 'blog.read')}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Contact CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band">
+        <div>
+          <h2>{c.ctaHeading}</h2>
+          <p>{c.ctaText}</p>
+        </div>
+        <a href="tel:+995595594100" class="btn btn-dark">+995 595 59 41 00</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

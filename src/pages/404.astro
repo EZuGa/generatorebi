@@ -1,21 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import NotFoundPage from '../components/pages/NotFoundPage.astro';
 ---
 
-<BaseLayout
-  title="გვერდი ვერ მოიძებნა — 404"
-  description="მოთხოვნილი გვერდი არ არსებობს ან გადატანილია."
-  index={false}
->
-  <div class="container notfound">
-    <div class="code">404</div>
-    <h1>გვერდი ვერ მოიძებნა</h1>
-    <p style="color: var(--color-muted);">
-      მოთხოვნილი გვერდი არ არსებობს ან წაშლილია. სცადეთ კატალოგი ან მთავარი გვერდი.
-    </p>
-    <p>
-      <a href="/catalog" class="btn btn-primary">კატალოგში დაბრუნება</a>
-      <a href="/" class="btn btn-dark" style="margin-left: 10px;">მთავარი</a>
-    </p>
-  </div>
-</BaseLayout>
+<NotFoundPage lang="ka" />

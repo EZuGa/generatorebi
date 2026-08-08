@@ -1,6 +1,12 @@
 ---
-import { CATEGORIES } from '../lib/categories';
+import { CATEGORIES, categoryName } from '../lib/categories';
+import { localePath, t, type Lang } from '../lib/i18n';
 
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'ka' } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
@@ -9,37 +15,34 @@ const year = new Date().getFullYear();
     <div class="footer-grid">
       <div class="footer-about">
         <h3>GENERATORI.GE</h3>
-        <p>
-          დიზელ-გენერატორების, სამრეწველო ჩილერებისა და სათადარიგო ნაწილების
-          მიწოდება საქართველოს მასშტაბით. გარანტია, მონტაჟი და სერვისი.
-        </p>
+        <p>{t(lang, 'footer.about')}</p>
       </div>
 
-      <nav aria-label="ქვედა ნავიგაცია">
-        <h3>ნავიგაცია</h3>
+      <nav aria-label={t(lang, 'aria.footerNav')}>
+        <h3>{t(lang, 'footer.nav')}</h3>
         <ul>
-          <li><a href="/">მთავარი</a></li>
-          <li><a href="/catalog">კატალოგი</a></li>
-          {CATEGORIES.map((c) => <li><a href={`/catalog/${c.slug}`}>{c.name}</a></li>)}
-          <li><a href="/blog">სტატიები</a></li>
-          <li><a href="/contact">კონტაქტი</a></li>
+          <li><a href={localePath('/', lang)}>{t(lang, 'nav.home')}</a></li>
+          <li><a href={localePath('/catalog', lang)}>{t(lang, 'nav.catalog')}</a></li>
+          {CATEGORIES.map((c) => <li><a href={localePath(`/catalog/${c.slug}`, lang)}>{categoryName(c.key, lang)}</a></li>)}
+          <li><a href={localePath('/blog', lang)}>{t(lang, 'nav.blog')}</a></li>
+          <li><a href={localePath('/contact', lang)}>{t(lang, 'nav.contact')}</a></li>
         </ul>
       </nav>
 
       <div>
-        <h3>კონტაქტი</h3>
+        <h3>{t(lang, 'footer.contact')}</h3>
         <ul>
-          <li><a href="tel:+995555000000">+995 555 00 00 00</a></li>
-          <li><a href="mailto:info@generatori.ge">info@generatori.ge</a></li>
-          <li>თბილისი, საქართველო</li>
-          <li>ორშ–შაბ: 09:00–18:00</li>
+          <li><a href="tel:+995595594100">+995 595 59 41 00</a></li>
+          <li><a href="mailto:madcom777@mail.ru">madcom777@mail.ru</a></li>
+          <li>{t(lang, 'contact.address')}</li>
+          <li>{t(lang, 'contact.hours')}</li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <span>© {year} GENERATORI.GE — ყველა უფლება დაცულია</span>
-      <span>დიზელ-გენერატორები · ჩილერები · სათადარიგო ნაწილები</span>
+      <span>© {year} GENERATORI.GE — {t(lang, 'footer.rights')}</span>
+      <span>{t(lang, 'footer.tagline')}</span>
     </div>
   </div>
 </footer>
