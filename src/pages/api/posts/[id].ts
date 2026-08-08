@@ -7,6 +7,8 @@ import {
   validateImageFile,
   uploadProductImage,
   triggerDeployHook,
+  resolveUniqueSlug,
+  translatePostPayload,
 } from '../../../lib/supabase-admin';
 import { getEnv } from '../../../lib/env';
 
@@ -40,7 +42,13 @@ export const POST: APIRoute = async ({ request, params, redirect, locals }) => {
   } else {
     const payload = formToPostPayload(form);
 
-    // An uploaded cover image takes precedence over the manual image path/URL.
+    // Keep the row's own slug valid, suffix (-2, -3, …) on collision with others.
+    payload.slug = await resolveUniqueSlug(url, serviceKey, 'posts', payload.slug, id);
+
+    // Auto-translate Georgian → Russian on save (MyMemory, Google fallback).
+    await translatePostPayload(payload, getEnv(locals, 'MYMEMORY_EMAIL'));
+
+    // An uploaded cover image replaces the current image (hidden current_image field).
     const imageFile = getImageFile(form);
     if (imageFile) {
       const invalid = validateImageFile(imageFile);

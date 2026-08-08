@@ -6,6 +6,8 @@ import {
   validateImageFile,
   uploadProductImage,
   triggerDeployHook,
+  resolveUniqueSlug,
+  translateProductPayload,
 } from '../../../lib/supabase-admin';
 import { getEnv } from '../../../lib/env';
 
@@ -33,7 +35,13 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     });
   }
 
-  // An uploaded image file takes precedence over the manual image path/URL.
+  // Avoid unique-constraint failures: suffix the slug (-2, -3, …) when taken.
+  payload.slug = await resolveUniqueSlug(url, serviceKey, 'products', payload.slug);
+
+  // Auto-translate Georgian → Russian on save (MyMemory, Google fallback).
+  await translateProductPayload(payload, getEnv(locals, 'MYMEMORY_EMAIL'));
+
+  // An uploaded image file replaces the current image (hidden current_image field).
   const imageFile = getImageFile(form);
   if (imageFile) {
     const invalid = validateImageFile(imageFile);

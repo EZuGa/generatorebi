@@ -3,6 +3,9 @@
  * Plain fetch — no supabase-js dependency.
  */
 
+import { slugify } from './slug';
+import { translateKaToRu, translateSpecs } from './translate';
+
 export interface ProductPayload {
   slug: string;
   name: string;
@@ -26,6 +29,40 @@ function adminHeaders(serviceKey: string): Record<string, string> {
     'Content-Type': 'application/json',
     Prefer: 'return=representation',
   };
+}
+
+/**
+ * Returns `slug` when it is free in the given table, otherwise the first
+ * available `slug-2`, `slug-3`, … variant. Handles any number of collisions.
+ * `excludeId` lets an update keep its own current slug.
+ * Falls back to the plain slug when the check query fails — the database's
+ * unique constraint remains the final guard (also against concurrent writes).
+ */
+export async function resolveUniqueSlug(
+  url: string,
+  serviceKey: string,
+  table: 'products' | 'posts',
+  slug: string,
+  excludeId?: string
+): Promise<string> {
+  let query = `select=slug&or=(slug.eq.${slug},slug.like.${slug}-*)`;
+  if (excludeId) query += `&id=neq.${encodeURIComponent(excludeId)}`;
+
+  const res = await fetch(`${url}/rest/v1/${table}?${query}`, {
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+  });
+  if (!res.ok) return slug;
+
+  const rows = (await res.json()) as { slug: string }[];
+  const taken = new Set(rows.map((r) => r.slug));
+
+  let candidate = slug;
+  let n = 2;
+  while (taken.has(candidate)) {
+    candidate = `${slug}-${n}`;
+    n++;
+  }
+  return candidate;
 }
 
 export async function createProduct(
@@ -171,20 +208,44 @@ export function specsToText(specs: { label: string; value: string }[]): string {
 }
 
 export function formToPayload(form: FormData): ProductPayload {
+  const name = String(form.get('name') ?? '').trim();
+  // No manual slug field: edits keep the existing slug (stable URLs),
+  // new products get one transliterated from the name.
+  const slug = String(form.get('current_slug') ?? '').trim() || slugify(name);
   return {
-    slug: String(form.get('slug') ?? '').trim(),
-    name: String(form.get('name') ?? '').trim(),
+    slug,
+    name,
     category: String(form.get('category') ?? 'generators'),
     short_desc: String(form.get('short_desc') ?? '').trim(),
     description: String(form.get('description') ?? '').trim(),
-    image: String(form.get('image') ?? '/images/products/generator.svg').trim(),
+    // No manual URL field anymore — keep the existing image unless a file was uploaded.
+    image:
+      String(form.get('current_image') ?? '').trim() || '/images/products/generator.svg',
     specs: parseSpecs(String(form.get('specs') ?? '')),
     featured: form.get('featured') === 'on',
-    name_ru: String(form.get('name_ru') ?? '').trim(),
-    short_desc_ru: String(form.get('short_desc_ru') ?? '').trim(),
-    description_ru: String(form.get('description_ru') ?? '').trim(),
-    specs_ru: parseSpecs(String(form.get('specs_ru') ?? '')),
+    // Filled by translateProductPayload() — the forms no longer carry ru inputs.
+    name_ru: '',
+    short_desc_ru: '',
+    description_ru: '',
+    specs_ru: [],
   };
+}
+
+/**
+ * Machine-translates the Georgian fields of a product payload into Russian
+ * (MyMemory, Google fallback). Runs once per save, on შენახვა — never live.
+ */
+export async function translateProductPayload(
+  payload: ProductPayload,
+  email?: string
+): Promise<void> {
+  [payload.name_ru, payload.short_desc_ru, payload.description_ru, payload.specs_ru] =
+    await Promise.all([
+      translateKaToRu(payload.name, email),
+      translateKaToRu(payload.short_desc, email),
+      translateKaToRu(payload.description, email),
+      translateSpecs(payload.specs, email),
+    ]);
 }
 
 /* ---------- blog post CRUD (admin) ---------- */
@@ -242,15 +303,36 @@ export async function deletePost(
 }
 
 export function formToPostPayload(form: FormData): PostPayload {
+  const title = String(form.get('title') ?? '').trim();
+  // No manual slug field: edits keep the existing slug (stable URLs),
+  // new posts get one transliterated from the title.
+  const slug = String(form.get('current_slug') ?? '').trim() || slugify(title);
   return {
-    slug: String(form.get('slug') ?? '').trim(),
-    title: String(form.get('title') ?? '').trim(),
+    slug,
+    title,
     excerpt: String(form.get('excerpt') ?? '').trim(),
     content: String(form.get('content') ?? '').trim(),
-    image: String(form.get('image') ?? '').trim(),
+    // No manual URL field anymore — keep the existing image unless a file was uploaded.
+    image: String(form.get('current_image') ?? '').trim(),
     published: form.get('published') === 'on',
-    title_ru: String(form.get('title_ru') ?? '').trim(),
-    excerpt_ru: String(form.get('excerpt_ru') ?? '').trim(),
-    content_ru: String(form.get('content_ru') ?? '').trim(),
+    // Filled by translatePostPayload() — the forms no longer carry ru inputs.
+    title_ru: '',
+    excerpt_ru: '',
+    content_ru: '',
   };
+}
+
+/**
+ * Machine-translates the Georgian fields of a post payload into Russian
+ * (MyMemory, Google fallback). Runs once per save, on შენახვა — never live.
+ */
+export async function translatePostPayload(
+  payload: PostPayload,
+  email?: string
+): Promise<void> {
+  [payload.title_ru, payload.excerpt_ru, payload.content_ru] = await Promise.all([
+    translateKaToRu(payload.title, email),
+    translateKaToRu(payload.excerpt, email),
+    translateKaToRu(payload.content, email),
+  ]);
 }

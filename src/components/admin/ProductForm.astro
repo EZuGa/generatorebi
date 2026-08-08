@@ -18,11 +18,7 @@ const specsText = product ? specsToText(product.specs) : '';
     <input type="text" id="name" name="name" required value={product?.name ?? ''} />
   </div>
 
-  <div class="form-field">
-    <label for="slug">სლაგი (ლათინურად, URL-ისთვის)</label>
-    <input type="text" id="slug" name="slug" required pattern="[a-z0-9\-]+" value={product?.slug ?? ''} />
-    <p class="form-hint">მხოლოდ პატარა ლათინური ასოები, ციფრები და ტირე — მაგ. dizel-generatori-100-kva</p>
-  </div>
+  <input type="hidden" name="current_slug" value={product?.slug ?? ''} />
 
   <div class="form-field">
     <label for="category">კატეგორია</label>
@@ -46,14 +42,10 @@ const specsText = product ? specsToText(product.specs) : '';
     <p class="form-hint">აბზაცების გამოსაყოფად გამოიყენეთ ცარიელი ხაზი.</p>
   </div>
 
-  <div class="form-field">
-    <label for="image">სურათის მისამართი</label>
-    <input type="text" id="image" name="image" value={product?.image ?? '/images/products/generator.svg'} />
-    <p class="form-hint">მაგ. /images/products/generator.svg — ატვირთული ფაილი უნდა იდოს public/images/products/-ში.</p>
-  </div>
+  <input type="hidden" name="current_image" value={product?.image ?? ''} />
 
   <div class="form-field">
-    <label for="image_file">ან ატვირთეთ სურათი</label>
+    <label for="image_file">სურათი</label>
     {product?.image && (
       <img
         src={product.image}
@@ -65,8 +57,8 @@ const specsText = product ? specsToText(product.specs) : '';
     )}
     <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/avif" />
     <p class="form-hint">
-      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში
-      და უპირატესია ზედა ტექსტურ ველზე.
+      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში.
+      ახალი ფაილის არჩევის გარეშე შენახვისას მიმდინარე სურათი შენარჩუნდება.
     </p>
   </div>
 
@@ -76,33 +68,9 @@ const specsText = product ? specsToText(product.specs) : '';
     <p class="form-hint">თითო ხაზზე: ეტიკეტი | მნიშვნელობა — მაგ. სიმძლავრე | 100 kVA</p>
   </div>
 
-  <fieldset style="border:1px solid var(--color-line); border-radius: var(--radius-sm); padding: 16px 16px 4px; margin-bottom: 18px;">
-    <legend style="font-weight:700; font-size:0.95rem; padding: 0 6px;">რუსული თარგმანი (არასავალდებულო)</legend>
-    <p class="form-hint" style="margin-bottom: 14px;">
-      ცარიელი ველების მაგივრად რუსულ გვერდებზე ქართული ტექსტი გამოჩნდება.
-    </p>
-
-    <div class="form-field">
-      <label for="name_ru">დასახელება (რუსულად)</label>
-      <input type="text" id="name_ru" name="name_ru" value={product?.name_ru ?? ''} />
-    </div>
-
-    <div class="form-field">
-      <label for="short_desc_ru">მოკლე აღწერა (რუსულად)</label>
-      <input type="text" id="short_desc_ru" name="short_desc_ru" value={product?.short_desc_ru ?? ''} />
-    </div>
-
-    <div class="form-field">
-      <label for="description_ru">სრული აღწერა (რუსულად)</label>
-      <textarea id="description_ru" name="description_ru">{product?.description_ru ?? ''}</textarea>
-    </div>
-
-    <div class="form-field">
-      <label for="specs_ru">მახასიათებლები (რუსულად)</label>
-      <textarea id="specs_ru" name="specs_ru">{product?.specs_ru ? specsToText(product.specs_ru) : ''}</textarea>
-      <p class="form-hint">იგივე ფორმატი: ეტიკეტი | მნიშვნელობა — მაგ. Мощность | 100 kVA</p>
-    </div>
-  </fieldset>
+  <p class="form-hint" style="margin-bottom: 18px;">
+    შენახვისას რუსული ვერსია ავტომატურად ითარგმნება.
+  </p>
 
   <div class="form-field">
     <label style="display:flex; align-items:center; gap:8px; font-weight:600;">

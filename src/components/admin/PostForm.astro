@@ -15,11 +15,7 @@ const { action, post } = Astro.props;
     <input type="text" id="title" name="title" required value={post?.title ?? ''} />
   </div>
 
-  <div class="form-field">
-    <label for="slug">სლაგი (ლათინურად, URL-ისთვის)</label>
-    <input type="text" id="slug" name="slug" required pattern="[a-z0-9\-]+" value={post?.slug ?? ''} />
-    <p class="form-hint">მხოლოდ პატარა ლათინური ასოები, ციფრები და ტირე — მაგ. rogor-avurchiot-dizel-generatori</p>
-  </div>
+  <input type="hidden" name="current_slug" value={post?.slug ?? ''} />
 
   <div class="form-field">
     <label for="excerpt">მოკლე აღწერა</label>
@@ -36,36 +32,14 @@ const { action, post } = Astro.props;
     </p>
   </div>
 
-  <fieldset style="border:1px solid var(--color-line); border-radius: var(--radius-sm); padding: 16px 16px 4px; margin-bottom: 18px;">
-    <legend style="font-weight:700; font-size:0.95rem; padding: 0 6px;">რუსული თარგმანი (არასავალდებულო)</legend>
-    <p class="form-hint" style="margin-bottom: 14px;">
-      ცარიელი ველების მაგივრად რუსულ გვერდებზე ქართული ტექსტი გამოჩნდება.
-    </p>
+  <input type="hidden" name="current_image" value={post?.image ?? ''} />
 
-    <div class="form-field">
-      <label for="title_ru">სათაური (რუსულად)</label>
-      <input type="text" id="title_ru" name="title_ru" value={post?.title_ru ?? ''} />
-    </div>
-
-    <div class="form-field">
-      <label for="excerpt_ru">მოკლე აღწერა (რუსულად)</label>
-      <input type="text" id="excerpt_ru" name="excerpt_ru" value={post?.excerpt_ru ?? ''} />
-    </div>
-
-    <div class="form-field">
-      <label for="content_ru">სტატიის ტექსტი (რუსულად)</label>
-      <textarea id="content_ru" name="content_ru" style="min-height: 260px;">{post?.content_ru ?? ''}</textarea>
-      <p class="form-hint">იგივე ფორმატი, რაც ქართული ტექსტისა — აბზაცები ცარიელი ხაზით, «## » — ქვესათაური.</p>
-    </div>
-  </fieldset>
+  <p class="form-hint" style="margin-bottom: 18px;">
+    შენახვისას რუსული ვერსია ავტომატურად ითარგმნება.
+  </p>
 
   <div class="form-field">
-    <label for="image">ყდის სურათის მისამართი (არასავალდებულო)</label>
-    <input type="text" id="image" name="image" value={post?.image ?? ''} />
-  </div>
-
-  <div class="form-field">
-    <label for="image_file">ან ატვირთეთ ყდის სურათი</label>
+    <label for="image_file">ყდის სურათი (არასავალდებულო)</label>
     {post?.image && (
       <img
         src={post.image}
@@ -77,8 +51,8 @@ const { action, post } = Astro.props;
     )}
     <input type="file" id="image_file" name="image_file" accept="image/jpeg,image/png,image/webp,image/avif" />
     <p class="form-hint">
-      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში
-      და უპირატესია ზედა ტექსტურ ველზე.
+      JPEG, PNG, WebP ან AVIF, მაქს. 5 MB. არჩეული ფაილი აიტვირთება Supabase Storage-ში.
+      ახალი ფაილის არჩევის გარეშე შენახვისას მიმდინარე სურათი შენარჩუნდება.
     </p>
   </div>
 
