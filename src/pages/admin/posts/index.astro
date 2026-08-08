@@ -25,7 +25,7 @@ if (dbConnected) {
 const saved = Astro.url.searchParams.get('saved');
 ---
 
-<BaseLayout title="ადმინი — სტატიები" description="სტატიების მართვა." index={false}>
+<BaseLayout title="ადმინი — სტატიები" description="სტატიების მართვა." index={false} bare>
   <div class="admin-wrap">
     <div class="admin-topbar">
       <div>
@@ -35,6 +35,7 @@ const saved = Astro.url.searchParams.get('saved');
       <div class="admin-actions">
         {dbConnected && <a href="/admin/posts/new" class="btn btn-primary btn-small">+ ახალი სტატია</a>}
         <a href="/admin" class="btn btn-dark btn-small">პროდუქტები</a>
+        <a href="/admin/stats" class="btn btn-dark btn-small">სტატისტიკა</a>
       </div>
     </div>
 

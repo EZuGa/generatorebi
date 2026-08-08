@@ -20,9 +20,11 @@ interface Props {
   /** Set false for admin pages that should not be indexed */
   index?: boolean;
   lang?: Lang;
+  /** Render without the site header/footer (admin pages) */
+  bare?: boolean;
 }
 
-const { title, description, ogImage = '/favicon.svg', ogType = 'website', index = true, lang = 'ka' } = Astro.props;
+const { title, description, ogImage = '/favicon.svg', ogType = 'website', index = true, lang = 'ka', bare = false } = Astro.props;
 
 const site = Astro.site ?? new URL('https://example.com');
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -67,10 +69,14 @@ const ruUrl = new URL(localePath(kaPath, 'ru'), site).href;
     <slot name="head" />
   </head>
   <body>
-    <Header lang={lang} />
-    <main>
-      <slot />
-    </main>
-    <Footer lang={lang} />
+    {bare ? <slot /> : (
+      <>
+        <Header lang={lang} />
+        <main>
+          <slot />
+        </main>
+        <Footer lang={lang} />
+      </>
+    )}
   </body>
 </html>

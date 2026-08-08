@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEnv } from '../../lib/env';
+import { getAdminStats, formatBytes, DB_LIMIT_BYTES, STORAGE_LIMIT_BYTES } from '../../lib/stats';
+
+const url = getEnv(Astro.locals, 'PUBLIC_SUPABASE_URL');
+const serviceKey = getEnv(Astro.locals, 'SUPABASE_SERVICE_ROLE_KEY');
+const dbConnected = Boolean(url && serviceKey);
+
+const stats = dbConnected ? await getAdminStats(url as string, serviceKey as string) : null;
+
+// Supabase project ref = subdomain of the project URL (used for dashboard links).
+const projectRef = url ? new URL(url).hostname.split('.')[0] : null;
+
+function percent(used: number, limit: number): number {
+  return Math.min(100, Math.max(0, (used / limit) * 100));
+}
+---
+
+<BaseLayout title="ადმინი — სტატისტიკა" description="რესურსების გამოყენება." index={false} bare>
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div>
+        <span class="kicker">ადმინი</span>
+        <h1 style="margin:0;">სტატისტიკა</h1>
+      </div>
+      <div class="admin-actions">
+        <a href="/admin" class="btn btn-dark btn-small">პროდუქტები</a>
+        <a href="/admin/posts" class="btn btn-dark btn-small">სტატიები</a>
+      </div>
+    </div>
+
+    {!dbConnected && (
+      <div class="notice notice-warn">
+        მონაცემთა ბაზა არ არის დაკავშირებული — სტატისტიკა მიუწვდომელია.
+        დასაკავშირებლად დააყენეთ <code>PUBLIC_SUPABASE_URL</code> და <code>SUPABASE_SERVICE_ROLE_KEY</code>.
+      </div>
+    )}
+
+    {stats && (
+      <div class="stat-grid">
+        <div class="panel stat-card">
+          <h2>მონაცემთა ბაზა</h2>
+          {stats.dbBytes !== null ? (
+            <>
+              <div class="stat-value">{formatBytes(stats.dbBytes)} <span>/ {formatBytes(DB_LIMIT_BYTES)}</span></div>
+              <div class="stat-bar"><div class="stat-fill" style={`width:${percent(stats.dbBytes, DB_LIMIT_BYTES)}%`}></div></div>
+              <p class="stat-note">დარჩენილია {formatBytes(DB_LIMIT_BYTES - stats.dbBytes)} (უფასო პაკეტი)</p>
+            </>
+          ) : (
+            <p class="stat-note">
+              ბაზის ზომა მიუწვდომელია — გაუშვით <code>supabase/migrations/002_admin_stats.sql</code>
+              Supabase-ის SQL editor-ში.
+            </p>
+          )}
+        </div>
+
+        <div class="panel stat-card">
+          <h2>ფაილები (სურათები)</h2>
+          {stats.storageBytes !== null ? (
+            <>
+              <div class="stat-value">{formatBytes(stats.storageBytes)} <span>/ {formatBytes(STORAGE_LIMIT_BYTES)}</span></div>
+              <div class="stat-bar"><div class="stat-fill" style={`width:${percent(stats.storageBytes, STORAGE_LIMIT_BYTES)}%`}></div></div>
+              <p class="stat-note">
+                დარჩენილია {formatBytes(STORAGE_LIMIT_BYTES - stats.storageBytes)} (უფასო პაკეტი)
+                {stats.storageFiles !== null && ` — ${stats.storageFiles} ფაილი`}
+              </p>
+            </>
+          ) : (
+            <p class="stat-note">შენახვის მოცულობის წაკითხვა ვერ მოხერხდა.</p>
+          )}
+        </div>
+
+        <div class="panel stat-card">
+          <h2>გამტარუნარიანობა</h2>
+          <div class="stat-value">Cloudflare <span>ულიმიტო</span></div>
+          <p class="stat-note">
+            საიტი მასპინძლობს Cloudflare Pages — გამტარუნარიანობა არ იზომება და ლიმიტი არ აქვს.
+          </p>
+          <p class="stat-note" style="margin-top:10px;">
+            Supabase-ის egress (უფასო პაკეტზე 5 GB/თვე) API-ით არ ვრცელდება —
+            ზუსტი რიცხვი მხოლოდ დეშბორდზეა ხელმისაწვდომელი:
+          </p>
+          {projectRef && (
+            <p class="stat-note" style="margin-top:8px;">
+              <a href={`https://supabase.com/dashboard/org/_/usage?projectRef=${projectRef}`} target="_blank" rel="noopener">Supabase Usage გვერდის გახსნა →</a>
+            </p>
+          )}
+        </div>
+
+        <div class="panel stat-card">
+          <h2>ჩანაწერები</h2>
+          <div class="stat-value">{stats.productCount ?? '—'} <span>პროდუქტი</span></div>
+          <div class="stat-value">{stats.postCount ?? '—'} <span>სტატია</span></div>
+        </div>
+      </div>
+    )}
+  </div>
+</BaseLayout>

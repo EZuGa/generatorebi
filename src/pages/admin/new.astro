@@ -14,7 +14,7 @@ const error = Astro.url.searchParams.get('error');
 const errorMessage = error ? IMAGE_ERROR_MESSAGES[error] : undefined;
 ---
 
-<BaseLayout title="ადმინი — ახალი პროდუქტი" description="პროდუქტის დამატება." index={false}>
+<BaseLayout title="ადმინი — ახალი პროდუქტი" description="პროდუქტის დამატება." index={false} bare>
   <div class="admin-wrap">
     <div class="admin-topbar">
       <div>

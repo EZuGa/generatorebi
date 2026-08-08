@@ -973,6 +973,53 @@ p {
   letter-spacing: 0.05em;
 }
 
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.stat-card h2 {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 12px;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--color-dark);
+  line-height: 1.2;
+}
+
+.stat-value span {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.stat-bar {
+  height: 8px;
+  background: var(--color-line);
+  border-radius: 999px;
+  margin: 14px 0 10px;
+  overflow: hidden;
+}
+
+.stat-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 999px;
+}
+
+.stat-note {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
 .admin-actions {
   display: flex;
   gap: 8px;

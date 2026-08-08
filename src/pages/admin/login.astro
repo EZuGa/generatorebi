@@ -17,7 +17,7 @@ if (secret && token && (await verifySessionToken(token, secret))) {
 const error = Astro.url.searchParams.get('error');
 ---
 
-<BaseLayout title="ადმინის შესვლა" description="ადმინისტრატორის ზონაში შესვლა." index={false}>
+<BaseLayout title="ადმინის შესვლა" description="ადმინისტრატორის ზონაში შესვლა." index={false} bare>
   <div class="admin-narrow">
     <div class="panel">
       <span class="kicker">ადმინი</span>

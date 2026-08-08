@@ -13,7 +13,7 @@ const dbConnected = Boolean(
 const saved = Astro.url.searchParams.get('saved');
 ---
 
-<BaseLayout title="ადმინი — პროდუქტები" description="პროდუქტების მართვა." index={false}>
+<BaseLayout title="ადმინი — პროდუქტები" description="პროდუქტების მართვა." index={false} bare>
   <div class="admin-wrap">
     <div class="admin-topbar">
       <div>
@@ -22,6 +22,7 @@ const saved = Astro.url.searchParams.get('saved');
       </div>
       <div class="admin-actions">
         <a href="/admin/posts" class="btn btn-dark btn-small">სტატიები</a>
+        <a href="/admin/stats" class="btn btn-dark btn-small">სტატისტიკა</a>
         {dbConnected && <a href="/admin/new" class="btn btn-primary btn-small">+ ახალი პროდუქტი</a>}
         <form method="POST" action="/api/auth/logout">
           <button type="submit" class="btn btn-dark btn-small">გამოსვლა</button>

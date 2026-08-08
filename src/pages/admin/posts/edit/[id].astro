@@ -34,7 +34,7 @@ const error = Astro.url.searchParams.get('error');
 const errorMessage = error ? IMAGE_ERROR_MESSAGES[error] : undefined;
 ---
 
-<BaseLayout title={`ადმინი — ${post.title}`} description="სტატიის რედაქტირება." index={false}>
+<BaseLayout title={`ადმინი — ${post.title}`} description="სტატიის რედაქტირება." index={false} bare>
   <div class="admin-wrap">
     <div class="admin-topbar">
       <div>
