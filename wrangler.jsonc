@@ -5,6 +5,8 @@
   "compatibility_flags": ["nodejs_compat"],
   // Astro's Cloudflare adapter output: server entry + static assets.
   "main": "./dist/_worker.js/index.js",
+  // Keep variables/secrets configured in the Cloudflare dashboard on deploy.
+  "keep_vars": true,
   "assets": {
     "directory": "./dist"
   }
