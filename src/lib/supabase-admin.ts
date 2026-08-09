@@ -105,8 +105,9 @@ export async function deleteProduct(
 }
 
 /**
- * Fire-and-forget POST to a Cloudflare Pages deploy hook so static pages
- * regenerate after a mutation. Never awaited by the caller.
+ * POST to a Cloudflare deploy hook so static pages regenerate after a
+ * mutation. Must be awaited by the caller (or wrapped in ctx.waitUntil) —
+ * un-awaited fetches are cancelled when the Worker returns its response.
  */
 export async function triggerDeployHook(deployHookUrl: string): Promise<void> {
   try {

@@ -64,9 +64,10 @@ export const POST: APIRoute = async ({ request, redirect, locals }) => {
     });
   }
 
-  // Rebuild static pages — fire and forget.
+  // Rebuild static pages. Must be awaited (or passed to ctx.waitUntil):
+  // un-awaited fetches are cancelled when the Worker returns the response.
   const hook = getEnv(locals, 'DEPLOY_HOOK_URL');
-  if (hook) triggerDeployHook(hook);
+  if (hook) await triggerDeployHook(hook);
 
   return redirect('/admin/posts?saved=1', 303);
 };
