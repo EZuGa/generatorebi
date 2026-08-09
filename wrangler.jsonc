@@ -7,6 +7,11 @@
   "main": "./dist/_worker.js/index.js",
   // Keep variables/secrets configured in the Cloudflare dashboard on deploy.
   "keep_vars": true,
+  // Public (non-secret) runtime variables. Secrets stay in the dashboard:
+  // ADMIN_PASSWORD, AUTH_SECRET, SUPABASE_SERVICE_ROLE_KEY.
+  "vars": {
+    "PUBLIC_SUPABASE_URL": "https://fdwxgkaibjgzvqmkfkzp.supabase.co"
+  },
   "assets": {
     "directory": "./dist"
   }
