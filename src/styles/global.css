@@ -11,6 +11,8 @@
   --color-surface: #ffffff;
   --color-accent: #f59e0b;
   --color-accent-strong: #ff6b00;
+  /* AA-safe orange for text on light backgrounds (#ff6b00 is only ~2.9:1 on white). */
+  --color-accent-text: #b45309;
   --color-text: #1c2128;
   --color-muted: #5b6572;
   --color-line: #e2e6ea;
@@ -83,8 +85,17 @@ p {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.22em;
-  color: var(--color-accent-strong);
+  color: var(--color-accent-text);
   margin-bottom: 0.6rem;
+}
+
+/* Dark backgrounds: the brighter orange has enough contrast there. */
+.hero .kicker,
+.page-hero .kicker,
+.trust-band .kicker,
+.section-dark .kicker,
+.cat-tile .kicker {
+  color: var(--color-accent-strong);
 }
 
 .kicker::before {
@@ -577,7 +588,7 @@ p {
   margin-top: auto;
   font-size: 0.9rem;
   font-weight: 800;
-  color: var(--color-accent-strong);
+  color: var(--color-accent-text);
 }
 
 .card-link {
@@ -746,7 +757,7 @@ p {
 .product-price-box .price {
   font-size: 1.25rem;
   font-weight: 900;
-  color: var(--color-accent-strong);
+  color: var(--color-accent-text);
   margin-bottom: 4px;
 }
 
@@ -1107,7 +1118,7 @@ p {
 }
 
 .prose a {
-  color: var(--color-accent-strong);
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 

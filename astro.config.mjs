@@ -7,6 +7,11 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: process.env.SITE_URL || 'https://generatori.com.ge',
   output: 'static',
+  // Inline the small global stylesheet into each page's HTML — removes the
+  // render-blocking /_astro/*.css request (Lighthouse FCP/LCP win).
+  build: {
+    inlineStylesheets: 'always',
+  },
   adapter: cloudflare(),
   integrations: [
     sitemap({
